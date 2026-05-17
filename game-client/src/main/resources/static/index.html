@@ -32,11 +32,33 @@
                 <input id="rankedCheckbox" type="checkbox">
                 Ranked Match
             </label>
+
+            <label class="checkbox-row">
+                <input id="botOpponentCheckbox" type="checkbox" checked>
+                Bot Opponent
+            </label>
+        </div>
+
+        <div class="grid">
+            <label>
+                X Position
+                <input id="turnXInput" type="number"/>
+            </label>
+
+            <label>
+                Cannon Rotation
+                <input id="turnRotationInput" type="number" min="0" max="359"/>
+            </label>
+
+            <label>
+                Damage Dealt
+                <input id="turnDamageInput" type="number" min="0"/>
+            </label>
         </div>
 
         <div class="actions">
             <button id="joinButton">Join Match</button>
-            <button id="playButton">Play Match</button>
+            <button id="attackButton">Attack</button>
             <button id="historyButton">Load Match History</button>
             <button id="resetButton" class="secondary">Reset Local View</button>
         </div>

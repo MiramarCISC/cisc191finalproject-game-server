@@ -1,21 +1,17 @@
 package edu.sdccd.cisc191.client.service;
 
-import edu.sdccd.cisc191.client.dto.JoinMatchWebRequest;
-import edu.sdccd.cisc191.client.dto.JoinMatchWebResponse;
-import edu.sdccd.cisc191.client.dto.MatchHistoryWebResponse;
-import edu.sdccd.cisc191.client.dto.PlayMatchWebResponse;
-import edu.sdccd.cisc191.grpc.GameServiceGrpc;
-import edu.sdccd.cisc191.grpc.JoinMatchRequest;
-import edu.sdccd.cisc191.grpc.JoinMatchResponse;
-import edu.sdccd.cisc191.grpc.MatchHistoryRequest;
-import edu.sdccd.cisc191.grpc.MatchHistoryResponse;
-import edu.sdccd.cisc191.grpc.MatchResultResponse;
-import edu.sdccd.cisc191.grpc.PlayMatchRequest;
+import edu.sdccd.cisc191.client.dto.*;
+import edu.sdccd.cisc191.grpc.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class GameGrpcClient {
@@ -35,40 +31,61 @@ public class GameGrpcClient {
         this.blockingStub = GameServiceGrpc.newBlockingStub(channel);
     }
 
-    public JoinMatchWebResponse joinMatch(JoinMatchWebRequest webRequest) {
-        JoinMatchRequest request = JoinMatchRequest.newBuilder()
-                .setPlayerName(safe(webRequest.playerName(), "Player"))
-                .setDifficulty(safe(webRequest.difficulty(), "Normal"))
-                .setRanked(webRequest.ranked())
-                .build();
+    public SseEmitter joinMatch(JoinMatchWebRequest webRequest) {
+        SseEmitter emitter = new SseEmitter(0L);
 
-        JoinMatchResponse response = blockingStub.joinMatch(request);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        return new JoinMatchWebResponse(
-                response.getMatchId(),
-                response.getPlayerName(),
-                response.getOpponentName(),
-                response.getDifficulty(),
-                response.getRanked(),
-                response.getMessage()
-        );
+        executor.execute(() -> {
+            try {
+                JoinMatchRequest request = JoinMatchRequest.newBuilder()
+                    .setPlayerName(safe(webRequest.playerName(), "Player"))
+                    .setDifficulty(safe(webRequest.difficulty(), "Normal"))
+                    .setRanked(webRequest.ranked())
+                    .setBotOpponent(webRequest.botOpponent())
+                    .build();
+
+                Iterator<MatchStateUpdate> responseIterator = blockingStub.joinMatch(request);
+
+                while (responseIterator.hasNext()) {
+                    MatchStateUpdate response = responseIterator.next();
+
+                    MatchUpdateWebPacket update = new MatchUpdateWebPacket(
+                        response.getMatchId(),
+                        response.getStatus().name(),
+                        response.getIsPlayerTurn(),
+                        MatchUpdateWebPacket.Player.from(response.getPlayer()),
+                        MatchUpdateWebPacket.Player.from(response.getOpponent()),
+                        response.getTerrainList(),
+                        MatchUpdateWebPacket.Properties.from(response.getProperties())
+                    );
+
+                    emitter.send(SseEmitter.event().name("match-update").data(update));
+                }
+                emitter.complete();
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            } finally {
+                executor.shutdown();
+            }
+        });
+
+        return emitter;
     }
 
-    public PlayMatchWebResponse playMatch(String matchId, String playerName) {
-        PlayMatchRequest request = PlayMatchRequest.newBuilder()
-                .setMatchId(safe(matchId, ""))
-                .setPlayerName(safe(playerName, "Player"))
-                .build();
+    public void playerTurn(PlayerTurnWebRequest webRequest) {
+        PlayerTurnRequest request = PlayerTurnRequest.newBuilder()
+            .setMatchId(webRequest.matchId())
+            .setPlayerName(webRequest.playerName())
+            .setCurrentX(webRequest.currentX())
+            .setCurrentAngle(webRequest.currentAngle())
+            .setDamageDealt(webRequest.damageDealt())
+            .addAllTerrain(webRequest.terrain())
+            .build();
 
-        MatchResultResponse response = blockingStub.playMatch(request);
+        blockingStub.playerTurn(request);
 
-        return new PlayMatchWebResponse(
-                response.getMatchId(),
-                response.getWinnerName(),
-                response.getLoserName(),
-                response.getPlayerWon(),
-                response.getMessage()
-        );
+        return;
     }
 
     public MatchHistoryWebResponse loadHistory(String playerName) {

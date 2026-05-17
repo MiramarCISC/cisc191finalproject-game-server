@@ -6,6 +6,11 @@ let currentPlayerName = "Player";
 const playerNameInput = document.querySelector("#playerNameInput");
 const difficultySelect = document.querySelector("#difficultySelect");
 const rankedCheckbox = document.querySelector("#rankedCheckbox");
+const botOpponentCheckbox = document.querySelector("#botOpponentCheckbox");
+
+const turnXInput = document.querySelector("#turnXInput");
+const turnRotationInput = document.querySelector("#turnRotationInput");
+const turnDamageInput = document.querySelector("#turnDamageInput");
 
 const matchIdSpan = document.querySelector("#matchId");
 const playerNameSpan = document.querySelector("#playerName");
@@ -13,8 +18,11 @@ const opponentNameSpan = document.querySelector("#opponentName");
 const winnerNameSpan = document.querySelector("#winnerName");
 const log = document.querySelector("#log");
 
+// Necessary for decoding raw bytes sent by SSE
+const decoder = new TextDecoder("utf-8");
+
 document.querySelector("#joinButton").addEventListener("click", joinMatch);
-document.querySelector("#playButton").addEventListener("click", playMatch);
+document.querySelector("#attackButton").addEventListener("click", sendAttack);
 document.querySelector("#historyButton").addEventListener("click", loadHistory);
 document.querySelector("#resetButton").addEventListener("click", resetLocalView);
 
@@ -26,10 +34,13 @@ function getPlayerName() {
 async function joinMatch() {
     currentPlayerName = getPlayerName();
 
+    playerNameSpan.textContent = getPlayerName();
+
     const request = {
         playerName: currentPlayerName,
         difficulty: difficultySelect.value,
-        ranked: rankedCheckbox.checked
+        ranked: rankedCheckbox.checked,
+        botOpponent: botOpponentCheckbox.checked
     };
 
     appendLog("Joining match through web client REST facade...");
@@ -41,19 +52,81 @@ async function joinMatch() {
             body: JSON.stringify(request)
         });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Could not join match.");
+        if (!response.ok) throw new Error("Could not join match.");
 
-        currentMatchId = data.matchId;
-        matchIdSpan.textContent = data.matchId;
-        playerNameSpan.textContent = data.playerName;
-        opponentNameSpan.textContent = data.opponentName;
-        winnerNameSpan.textContent = "TBD";
+        appendLog("Connected to Match!");
 
-        appendLog(data.message);
+        await handleMatchUpdates(response);
     } catch (error) {
         appendLog("Error: " + error.message);
     }
+}
+
+async function handleMatchUpdates(response) {
+    for await(const packet of response.body) {
+        const sseRawEvent = decoder.decode(packet, { stream: true })
+        const lines = sseRawEvent.split('\n');
+
+        for (let line of lines) {
+            if (line.startsWith("{")) {
+                const data = JSON.parse(line.trimEnd());
+
+                changeMatchInfo(data)
+
+                switch (data.status) {
+                    case "STATUS_WAITING": {
+                        appendLog("Waiting for server...");
+                        break;
+                    }
+                    case "STATUS_READY": {
+                        handleGamePacket(data);
+                        break;
+                    }
+                    case "STATUS_FINISHED": {
+                        return;
+                    }
+                    default: {
+                        throw new Error("Undefined status");
+                    }
+                }
+            }
+        }
+    }
+}
+
+async function sendAttack() {
+    const request = {
+        matchId: currentMatchId ?? "",
+        playerName: currentPlayerName ?? "Player",
+        currentX: turnXInput.value ?? 0,
+        damageDealt: turnDamageInput.value ?? 0,
+        currentAngle: turnRotationInput.value ?? 0,
+        terrain: [0, 0, 0]
+    };
+
+    appendLog("Attempting to attack...");
+
+    try {
+        const response = await fetch(`${apiBaseUrl}/turn`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(request)
+        });
+    } catch (error) {
+        appendLog("Error: " + error.message);
+    }
+}
+
+function changeMatchInfo(data) {
+    matchIdSpan.textContent = data.matchId;
+    currentMatchId = data.matchId
+    playerNameSpan.textContent = data.player.username;
+    currentPlayerName = data.player.username;
+    opponentNameSpan.textContent = data.opponent.username;
+}
+
+function handleGamePacket(data) {
+    appendLog(JSON.stringify(data));
 }
 
 async function playMatch() {
@@ -62,18 +135,30 @@ async function playMatch() {
         return;
     }
 
-    appendLog("Server is choosing a random winner...");
+    // Necessary for decoding raw bytes sent by SSE
+    const decoder = new TextDecoder("utf-8");
+
+    appendLog("Connecting to match...");
 
     try {
         const response = await fetch(`${apiBaseUrl}/${currentMatchId}/play?playerName=${encodeURIComponent(currentPlayerName)}`, {
             method: "POST"
         });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || "Could not play match.");
+        if (!response.ok) return;
 
-        winnerNameSpan.textContent = data.winnerName;
-        appendLog(data.message);
+        appendLog("Connected!");
+
+        for await (const packet of response.body) {
+            const sseRawEvent = decoder.decode(packet, { stream: true })
+            const lines = sseRawEvent.split('\n');
+
+            for (let line of lines) {
+                if (line.startsWith("{")) {
+                    appendLog(line.trimEnd());
+                }
+            }
+        }
     } catch (error) {
         appendLog("Error: " + error.message);
     }

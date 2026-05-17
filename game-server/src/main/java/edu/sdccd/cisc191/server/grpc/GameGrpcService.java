@@ -1,120 +1,257 @@
 package edu.sdccd.cisc191.server.grpc;
 
-import edu.sdccd.cisc191.grpc.GameServiceGrpc;
-import edu.sdccd.cisc191.grpc.JoinMatchRequest;
-import edu.sdccd.cisc191.grpc.JoinMatchResponse;
-import edu.sdccd.cisc191.grpc.MatchHistoryRequest;
-import edu.sdccd.cisc191.grpc.MatchHistoryResponse;
-import edu.sdccd.cisc191.grpc.MatchResultResponse;
-import edu.sdccd.cisc191.grpc.PlayMatchRequest;
+import com.google.protobuf.Empty;
+import edu.sdccd.cisc191.grpc.*;
+import edu.sdccd.cisc191.server.engine.OnlineMatchTurn;
 import edu.sdccd.cisc191.server.entity.MatchEntity;
 import edu.sdccd.cisc191.server.repository.MatchRepository;
+import edu.sdccd.cisc191.server.service.MatchBroadcasterService;
+import edu.sdccd.cisc191.server.service.MatchManagementService;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
 @Service
 public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
 
-    private final MatchRepository matchRepository;
-    private final Random random = new Random();
+//    private final MatchRepository matchRepository;
+    private final MatchManagementService matchManagementService;
+    private final MatchBroadcasterService broadcasterService;
 
-    public GameGrpcService(MatchRepository matchRepository) {
-        this.matchRepository = matchRepository;
+    public GameGrpcService(MatchRepository matchRepository, MatchManagementService matchManagementService, MatchBroadcasterService matchBroadcasterService) {
+        //this.matchRepository = matchRepository;
+        this.matchManagementService = matchManagementService;
+        this.broadcasterService = matchBroadcasterService;
     }
+
+//    @Override
+//    public void joinMatch(
+//        JoinMatchRequest request,
+//        StreamObserver<MatchStateUpdate> responseObserver
+//    ) {
+//        String playerName = normalizePlayerName(request.getPlayerName());
+//        String difficulty = normalizeDifficulty(request.getDifficulty());
+//        boolean ranked = request.getRanked();
+//
+//        String matchId = UUID.randomUUID().toString();
+//
+//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//
+//        MatchStateUpdate.Player testPlayer = MatchStateUpdate.Player.newBuilder()
+//            .setUsername("test").setHp(4).setAngle(30).setX(40)
+//            .build();
+//
+//        MatchStateUpdate.Properties props = MatchStateUpdate.Properties.newBuilder()
+//            .setDifficulty(difficulty)
+//            .setRanked(ranked)
+//            .setMessage("Test").build();
+//
+//        System.out.println("Test");
+//
+//        executor.scheduleAtFixedRate(() -> {
+//            System.out.println("Hi");
+//
+//            responseObserver.onNext(MatchStateUpdate.newBuilder()
+//                .setMatchId(matchId)
+//                .setStatus(MatchStateUpdate.Status.STATUS_WAITING)
+//                .setTurnNumber(1)
+//                .setPlayer(testPlayer)
+//                .setOpponent(testPlayer)
+//                .addTerrain(0)
+//                .setProperties(props)
+//                .build()
+//            );
+//        }, 0, 10, TimeUnit.MILLISECONDS);
+//    }
 
     @Override
     public void joinMatch(
-            JoinMatchRequest request,
-            StreamObserver<JoinMatchResponse> responseObserver
+        JoinMatchRequest request,
+        StreamObserver<MatchStateUpdate> responseObserver
     ) {
         String playerName = normalizePlayerName(request.getPlayerName());
         String difficulty = normalizeDifficulty(request.getDifficulty());
         boolean ranked = request.getRanked();
 
-        String matchId = UUID.randomUUID().toString();
+        MatchManagementService.JoinResult result = matchManagementService.joinOrCreateMatch(playerName, difficulty, ranked);
 
-        MatchEntity match = new MatchEntity(
-                matchId,
-                playerName,
-                "Bot (" + difficulty + ")",
-                difficulty,
-                ranked
-        );
+        broadcasterService.registerClient(result.matchId(), responseObserver);
 
-        matchRepository.save(match);
+        MatchStateUpdate.Status matchStatus = result.isMatchFull() ?
+            MatchStateUpdate.Status.STATUS_READY : MatchStateUpdate.Status.STATUS_WAITING;
 
-        JoinMatchResponse response = JoinMatchResponse.newBuilder()
-                .setMatchId(match.getMatchId())
-                .setPlayerName(match.getPlayerName())
-                .setOpponentName(match.getOpponentName())
-                .setDifficulty(match.getDifficulty())
-                .setRanked(match.isRanked())
-                .setMessage("Joined " + match.getMatchType() + " match " + matchId
-                        + " on " + difficulty + " difficulty.")
-                .build();
+        MatchStateUpdate.Properties props = MatchStateUpdate.Properties.newBuilder()
+            .setDifficulty(difficulty)
+            .setRanked(ranked)
+            .setMessage(result.isMatchFull() ? "Match Starting!" : "Waiting for Opponent...")
+            .build();
 
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
+        MatchStateUpdate initialUpdate = MatchStateUpdate.newBuilder()
+            .setMatchId(result.matchId())
+            .setStatus(matchStatus)
+            .setIsPlayerTurn(true)
+            .setProperties(props)
+            .setPlayer(result.match().getPlayer().intoUpdatePlayer())
+            .setOpponent(result.match().getOpponent().intoUpdatePlayer())
+            .build();
+
+        broadcasterService.broadcastUpdate(result.matchId(), initialUpdate, () -> {
+            broadcasterService.unregisterClient(result.matchId(), responseObserver);
+        });
     }
 
     @Override
-    public void playMatch(
-            PlayMatchRequest request,
-            StreamObserver<MatchResultResponse> responseObserver
+    public void playerTurn(
+        PlayerTurnRequest request,
+        StreamObserver<Empty> responseObserver
     ) {
-        MatchEntity match = matchRepository.findById(request.getMatchId()).orElse(null);
+        boolean isTurnSuccessful = matchManagementService.validateAndProcessTurn(new OnlineMatchTurn(
+            request.getMatchId(),
+            request.getPlayerName(),
+            request.getCurrentX(),
+            request.getDamageDealt(),
+            request.getCurrentAngle(),
+            request.getTerrainList()
+        ));
 
-        if (match == null) {
-            responseObserver.onNext(MatchResultResponse.newBuilder()
-                    .setMatchId(request.getMatchId())
-                    .setWinnerName("No winner")
-                    .setLoserName("No loser")
-                    .setPlayerWon(false)
-                    .setMessage("Match not found. Join a match first.")
-                    .build());
+        if (isTurnSuccessful) {
+            responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
-            return;
+        } else {
+            Status status = Status.FAILED_PRECONDITION;
+
+            responseObserver.onError(status.asRuntimeException());
         }
-
-        if (match.isComplete()) {
-            boolean playerWon = match.getWinnerName().equals(match.getPlayerName());
-            String loser = playerWon ? match.getOpponentName() : match.getPlayerName();
-
-            responseObserver.onNext(MatchResultResponse.newBuilder()
-                    .setMatchId(match.getMatchId())
-                    .setWinnerName(match.getWinnerName())
-                    .setLoserName(loser)
-                    .setPlayerWon(playerWon)
-                    .setMessage("Match already completed. Winner: " + match.getWinnerName())
-                    .build());
-            responseObserver.onCompleted();
-            return;
-        }
-
-        boolean playerWon = random.nextBoolean();
-        String winner = playerWon ? match.getPlayerName() : match.getOpponentName();
-        String loser = playerWon ? match.getOpponentName() : match.getPlayerName();
-
-        match.completeWithWinner(winner);
-        matchRepository.save(match);
-
-        MatchResultResponse response = MatchResultResponse.newBuilder()
-                .setMatchId(match.getMatchId())
-                .setWinnerName(winner)
-                .setLoserName(loser)
-                .setPlayerWon(playerWon)
-                .setMessage("Server result: " + winner + " defeated " + loser
-                        + " in a " + match.getMatchType() + " "
-                        + match.getDifficulty() + " match.")
-                .build();
-
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
+
+//    @Override
+//    public void joinMatch(
+//            JoinMatchRequest request,
+//            StreamObserver<JoinMatchResponse> responseObserver
+//    ) {
+//        String playerName = normalizePlayerName(request.getPlayerName());
+//        String difficulty = normalizeDifficulty(request.getDifficulty());
+//        boolean ranked = request.getRanked();
+//
+//        String matchId = UUID.randomUUID().toString();
+//
+//        MatchEntity match = new MatchEntity(
+//                matchId,
+//                playerName,
+//                "Bot (" + difficulty + ")",
+//                difficulty,
+//                ranked
+//        );
+//
+//        matchRepository.save(match);
+//
+//        JoinMatchResponse response = JoinMatchResponse.newBuilder()
+//                .setMatchId(match.getMatchId())
+//                .setPlayerName(match.getPlayerName())
+//                .setOpponentName(match.getOpponentName())
+//                .setDifficulty(match.getDifficulty())
+//                .setRanked(match.isRanked())
+//                .setMessage("Joined " + match.getMatchType() + " match " + matchId
+//                        + " on " + difficulty + " difficulty.")
+//                .build();
+//
+//        responseObserver.onNext(response);
+//        responseObserver.onCompleted();
+//    }
+//
+//
+//    @Override
+//    public void playMatch(
+//        PlayMatchRequest request,
+//        StreamObserver<MatchStateUpdate> responseObserver
+//    ) {
+//        MatchEntity match = matchRepository.findById(request.getMatchId()).orElse(null);
+//
+//        if (match == null) {
+//            responseObserver.onNext(MatchStateUpdate.newBuilder()
+//                .setMatchId("null")
+//                .setIsOver(true)
+//                .addPlayer(0, MatchStateUpdate.Player.newBuilder().build())
+//                .addPlayer(1, MatchStateUpdate.Player.newBuilder().build())
+//                .build()
+//            );
+//        }
+//
+//        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+//
+//        MatchStateUpdate.Player testPlayer = MatchStateUpdate.Player.newBuilder()
+//            .setUsername("test").setHp(4).setAngle(30).setX(40)
+//            .build();
+//
+//        executor.scheduleAtFixedRate(() -> {
+//            responseObserver.onNext(MatchStateUpdate.newBuilder()
+//                .setMatchId(match.getMatchId())
+//                .setIsOver(false)
+//                .addPlayer(0, testPlayer)
+//                .addPlayer(1, testPlayer)
+//                .addTerrain(0)
+//                .setTurnNumber(1)
+//                .build()
+//            );
+//        }, 0, 10, TimeUnit.SECONDS);
+//    }
+
+//    @Override
+//    public void playMatch(
+//            PlayMatchRequest request,
+//            StreamObserver<MatchResultResponse> responseObserver
+//    ) {
+//        MatchEntity match = matchRepository.findById(request.getMatchId()).orElse(null);
+//
+//        if (match == null) {
+//            responseObserver.onNext(MatchResultResponse.newBuilder()
+//                    .setMatchId(request.getMatchId())
+//                    .setWinnerName("No winner")
+//                    .setLoserName("No loser")
+//                    .setPlayerWon(false)
+//                    .setMessage("Match not found. Join a match first.")
+//                    .build());
+//            responseObserver.onCompleted();
+//            return;
+//        }
+//
+//        if (match.isComplete()) {
+//            boolean playerWon = match.getWinnerName().equals(match.getPlayerName());
+//            String loser = playerWon ? match.getOpponentName() : match.getPlayerName();
+//
+//            responseObserver.onNext(MatchResultResponse.newBuilder()
+//                    .setMatchId(match.getMatchId())
+//                    .setWinnerName(match.getWinnerName())
+//                    .setLoserName(loser)
+//                    .setPlayerWon(playerWon)
+//                    .setMessage("Match already completed. Winner: " + match.getWinnerName())
+//                    .build());
+//            responseObserver.onCompleted();
+//            return;
+//        }
+//
+//        boolean playerWon = random.nextBoolean();
+//        String winner = playerWon ? match.getPlayerName() : match.getOpponentName();
+//        String loser = playerWon ? match.getOpponentName() : match.getPlayerName();
+//
+//        match.completeWithWinner(winner);
+//        matchRepository.save(match);
+//
+//        MatchResultResponse response = MatchResultResponse.newBuilder()
+//                .setMatchId(match.getMatchId())
+//                .setWinnerName(winner)
+//                .setLoserName(loser)
+//                .setPlayerWon(playerWon)
+//                .setMessage("Server result: " + winner + " defeated " + loser
+//                        + " in a " + match.getMatchType() + " "
+//                        + match.getDifficulty() + " match.")
+//                .build();
+//
+//        responseObserver.onNext(response);
+//        responseObserver.onCompleted();
+//    }
 
     @Override
     public void loadMatchHistory(
@@ -123,8 +260,8 @@ public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
     ) {
         String playerName = normalizePlayerName(request.getPlayerName());
 
-        List<MatchEntity> savedMatches =
-                matchRepository.findTop10ByPlayerNameOrderByMatchIdDesc(playerName);
+        List<MatchEntity> savedMatches = null;
+               // matchRepository.findTop10ByPlayerNameOrderByMatchIdDesc(playerName);
 
         MatchHistoryResponse.Builder response = MatchHistoryResponse.newBuilder();
 

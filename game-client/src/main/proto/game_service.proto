@@ -1,12 +1,15 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option java_multiple_files = true;
 option java_package = "edu.sdccd.cisc191.grpc";
 option java_outer_classname = "GameProto";
 
 service GameService {
-  rpc JoinMatch(JoinMatchRequest) returns (JoinMatchResponse);
-  rpc PlayMatch(PlayMatchRequest) returns (MatchResultResponse);
+  rpc JoinMatch(JoinMatchRequest) returns (stream MatchStateUpdate);
+  rpc PlayerTurn(PlayerTurnRequest) returns (google.protobuf.Empty); // Returns status code
+  rpc LoadMatchInfo(MatchInfoRequest) returns (MatchInfoResponse);
   rpc LoadMatchHistory(MatchHistoryRequest) returns (MatchHistoryResponse);
 }
 
@@ -14,28 +17,63 @@ message JoinMatchRequest {
   string player_name = 1;
   string difficulty = 2;
   bool ranked = 3;
+  bool bot_opponent = 4;
 }
 
-message JoinMatchResponse {
+message MatchStateUpdate {
+  string match_id = 1;
+  Status status = 2;
+
+  bool is_player_turn = 3;
+
+  Player player = 4;
+  Player opponent = 5;
+
+  repeated int32 terrain = 6; // 1D heightmap
+
+  optional Properties properties = 7;
+
+  message Properties {
+    string difficulty = 1;
+    bool ranked = 2;
+    string message = 3;
+  }
+
+  message Player {
+    string username = 1;
+    int32 x = 2;
+    int32 hp = 3;
+    int32 angle = 4;
+  }
+
+  enum Status {
+    STATUS_WAITING = 0;
+    STATUS_READY = 1;
+    STATUS_FINISHED = 2;
+  }
+}
+
+message PlayerTurnRequest {
   string match_id = 1;
   string player_name = 2;
-  string opponent_name = 3;
-  string difficulty = 4;
-  bool ranked = 5;
-  string message = 6;
+
+  int32 current_x = 3;
+  int32 damage_dealt = 4;
+  int32 current_angle = 5;
+
+  repeated int32 terrain = 6;
 }
 
-message PlayMatchRequest {
+message MatchInfoRequest {
   string match_id = 1;
   string player_name = 2;
 }
 
-message MatchResultResponse {
+message MatchInfoResponse {
   string match_id = 1;
   string winner_name = 2;
   string loser_name = 3;
-  bool player_won = 4;
-  string message = 5;
+  string message = 4;
 }
 
 message MatchHistoryRequest {
