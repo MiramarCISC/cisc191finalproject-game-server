@@ -22,7 +22,7 @@ public class GameServerApplication {
     @Bean
     CommandLineRunner startGrpcServer(
             GameGrpcService gameGrpcService,
-            @Value("${game.grpc.port:50051}") int grpcPort
+            @Value("${game.grpc.port:50052}") int grpcPort
     ) {
         return args -> {
             grpcServer = ServerBuilder

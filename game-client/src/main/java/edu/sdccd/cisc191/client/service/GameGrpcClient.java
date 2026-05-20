@@ -21,7 +21,7 @@ public class GameGrpcClient {
 
     public GameGrpcClient(
             @Value("${game.grpc.host:localhost}") String host,
-            @Value("${game.grpc.port:50051}") int port
+            @Value("${game.grpc.port:12345}") int port
     ) {
         this.channel = ManagedChannelBuilder
                 .forAddress(host, port)
@@ -84,8 +84,6 @@ public class GameGrpcClient {
             .build();
 
         blockingStub.playerTurn(request);
-
-        return;
     }
 
     public MatchHistoryWebResponse loadHistory(String playerName) {

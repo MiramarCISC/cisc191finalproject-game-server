@@ -6,6 +6,9 @@ import edu.sdccd.cisc191.server.engine.OnlineMatchTurn;
 import edu.sdccd.cisc191.server.repository.MatchRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,7 +27,7 @@ public class MatchManagementService {
 
     public record JoinResult(String matchId, OnlineMatch match, boolean isMatchFull) { }
 
-    public synchronized JoinResult joinOrCreateMatch(String playerName, String difficulty, boolean ranked) {
+    public JoinResult joinOrCreateMatch(String playerName, String difficulty, boolean ranked) {
         String matchId = waitingMatches.keySet().stream().findFirst().orElse(null);
         OnlineMatch match;
 
@@ -36,11 +39,8 @@ public class MatchManagementService {
             match = waitingMatches.get(matchId);
         }
 
-        int count = match.addPlayer(playerName, false);
-
-        if (true) {
-            count = match.addPlayer("Bot (" + difficulty + ")", true);
-        }
+        match.addPlayer(playerName, false);
+        int count = match.addPlayer("Bot (" + difficulty + ")", true);
 
         boolean isFull = (count >= 2);
         if (isFull) {
@@ -50,34 +50,55 @@ public class MatchManagementService {
         return new JoinResult(matchId, match, isFull);
     }
 
-    public synchronized boolean validateAndProcessTurn(
+    public boolean validateAndProcessTurn(
         OnlineMatchTurn turn
     ) {
         OnlineMatch match = activeMatches.get(turn.matchId());
 
         if (match != null) {
-            OnlineMatchPlayer turnPlayer = match.isPlayerTurn()? match.getPlayer(): match.getOpponent();
-            OnlineMatchPlayer turnOpponent = match.isPlayerTurn()? match.getOpponent(): match.getPlayer();
+            synchronized (match) {
+                OnlineMatchPlayer turnPlayer = match.isPlayerTurn()? match.getPlayer(): match.getOpponent();
+                OnlineMatchPlayer turnOpponent = match.isPlayerTurn()? match.getOpponent(): match.getPlayer();
 
-            if (turn.playerName().equals(turnPlayer.getUsername()) && true) {
-                match.flipPlayerTurn();
+                if (turn.playerName().equals(turnPlayer.getUsername())) {
+                    turnPlayer.setX(turn.currentX());
+                    turnPlayer.setAngle(turn.currentAngle());
 
-                turnPlayer.setX(turn.currentX());
-                turnPlayer.setAngle(turn.currentAngle());
+                    turnOpponent.subtractHp(turn.damageDealt());
 
-                turnOpponent.subtractHp(turn.damageDealt());
+                    match.setTerrain(turn.terrain());
 
-                match.setTerrain(turn.terrain());
+                    match.flipPlayerTurn();
 
-                broadcaster.broadcastMatchUpdate(turn.matchId(), match, () -> {});
+                    broadcaster.broadcastMatchUpdate(turn.matchId(), match, () -> {});
 
-                return true;
-            } else {
-                return false;
+                    if (match.isBotOpponent() && turnOpponent.getUsername().startsWith("Bot")) {
+                        fakeBotTurn(turn.matchId(), turnOpponent, turn.terrain());
+                    }
+                } else {
+                    return false;
+                }
             }
         }
 
         return false;
+    }
+
+    public void fakeBotTurn(String matchId, OnlineMatchPlayer botPlayer, List<Integer> terrain) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                validateAndProcessTurn(new OnlineMatchTurn(
+                    matchId,
+                    botPlayer.getUsername(),
+                    botPlayer.getX() + (int) Math.floor(Math.random()*30) - 15,
+                    (int) Math.floor(Math.random()*10),
+                    botPlayer.getAngle(),
+                    terrain
+                ));
+            }
+        }, 5000);
     }
 
     public void initializeMatch(String matchId) {

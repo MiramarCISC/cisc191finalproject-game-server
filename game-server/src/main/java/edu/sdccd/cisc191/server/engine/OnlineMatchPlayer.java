@@ -6,9 +6,9 @@ public class OnlineMatchPlayer {
     private final String username;
     private final boolean isBot;
 
-    private int x;
-    private int hp;
-    private int angle;
+    private int x = 50;
+    private int hp = 100;
+    private int angle = 0;
 
     public OnlineMatchPlayer(String username, boolean isBot) {
         this.username = username;
@@ -32,7 +32,7 @@ public class OnlineMatchPlayer {
     }
 
     public void subtractHp(int hp) {
-        this.hp=-hp;
+        this.hp-=hp;
     }
 
     public int getAngle() {

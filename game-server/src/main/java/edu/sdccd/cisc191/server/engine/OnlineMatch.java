@@ -7,6 +7,7 @@ public class OnlineMatch {
     private OnlineMatchPlayer player;
     private OnlineMatchPlayer opponent;
     private boolean isPlayerTurn = true;
+    private boolean isBotOpponent = true;
 
     private final AtomicReference<List<Integer>> terrain = new AtomicReference<>();
 
@@ -53,5 +54,9 @@ public class OnlineMatch {
 
     public synchronized OnlineMatchPlayer getOpponent() {
         return this.opponent;
+    }
+
+    public synchronized boolean isBotOpponent() {
+        return this.isBotOpponent;
     }
 }
