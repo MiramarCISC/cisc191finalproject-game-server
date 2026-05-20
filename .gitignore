@@ -1,0 +1,9 @@
+target/
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.log
+
+# File-based H2 database files for the Spring Boot server
+game-server/data/

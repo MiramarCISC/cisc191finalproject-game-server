@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="edu.sdccd.cisc191.client.controller.GameController">
+
+    <top>
+        <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #eef5ff;">
+            <Label text="JavaFX gRPC 1v1 Match Client"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+            <Label fx:id="statusLabel"
+                   text="Status: Not connected" />
+
+            <HBox spacing="10">
+                <Label text="Player:" />
+                <TextField fx:id="playerNameField"
+                           promptText="Enter player name"
+                           prefWidth="180" />
+
+                <CheckBox fx:id="rankedMatchCheckBox" text="Ranked" />
+
+                <Label fx:id="matchSummaryLabel" text="Summary: No match" />
+
+                <Label text="Difficulty:" />
+                <ComboBox fx:id="difficultyComboBox"
+                          prefWidth="120" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TextArea fx:id="matchLog"
+                  editable="false"
+                  wrapText="true"
+                  promptText="Match events will appear here..." />
+    </center>
+
+    <bottom>
+        <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #f8f8f8;">
+
+            <HBox spacing="20">
+                <Label fx:id="playerLabel" text="Player: Player" />
+                <Label fx:id="opponentLabel" text="Opponent: Opponent" />
+                <Label fx:id="winnerLabel" text="Winner: TBD" />
+            </HBox>
+
+            <HBox spacing="10">
+                <Button text="Join Match"/>
+
+                <Button text="Play Match"/>
+
+                <Button text="Load Match History"/>
+
+                <Button text="Reset Local View"/>
+            </HBox>
+
+        </VBox>
+    </bottom>
+
+</BorderPane>
