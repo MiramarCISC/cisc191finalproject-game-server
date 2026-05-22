@@ -1,71 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="edu.sdccd.cisc191.client.controller.GameController">
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.AnchorPane?>
 
-    <top>
-        <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #eef5ff;">
-            <Label text="JavaFX gRPC 1v1 Match Client"
-                   style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.control.ScrollPane?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.sdccd.cisc191.client.ui.controller.GameController"
+      prefWidth="750.0" prefHeight="360.0"
+      spacing="10">
 
-            <Label fx:id="statusLabel"
-                   text="Status: Not connected" />
+    <padding>
+        <Insets top="10" bottom="10" left="10" right="10"/>
+    </padding>
 
-            <HBox spacing="10">
-                <Label text="Player:" />
-                <TextField fx:id="playerNameField"
-                           promptText="Enter player name"
-                           prefWidth="180" />
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
 
-                <CheckBox fx:id="rankedMatchCheckBox" text="Ranked" />
+    <VBox>
+        <Label styleClass="title" text="Welcome to the Dashboard!" maxWidth="Infinity"/>
+        <Label styleClass="subtitle" text="Please select an action you wish to do." maxWidth="Infinity"/>
+    </VBox>
 
-                <Label fx:id="matchSummaryLabel" text="Summary: No match" />
+    <HBox spacing="5" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+        <VBox maxWidth="Infinity" maxHeight="Infinity" HBox.hgrow="NEVER" minWidth="150" spacing="5">
+            <Button onAction="#requestRegisterWindow" text="Register Player" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#enqueuePlayerWindow" text="Add Player to Queue" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button text="Get Current Queue" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
 
-                <Label text="Difficulty:" />
-                <ComboBox fx:id="difficultyComboBox"
-                          prefWidth="120" />
-            </HBox>
+            <Button text="Start Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button text="Finish Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button text="Get Past Matches" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
         </VBox>
-    </top>
 
-    <center>
-        <TextArea fx:id="matchLog"
-                  editable="false"
-                  wrapText="true"
-                  promptText="Match events will appear here..." />
-    </center>
+        <AnchorPane HBox.hgrow="ALWAYS">
+            <ScrollPane
+                AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0"
+                AnchorPane.topAnchor="0">
 
-    <bottom>
-        <VBox spacing="10" style="-fx-padding: 12; -fx-background-color: #f8f8f8;">
+                <TextFlow fx:id="logFlow" styleClass="log-flow">
+                    <padding>
+                        <Insets top="5" bottom="5" left="5" right="5"/>
+                    </padding>
+                </TextFlow>
+            </ScrollPane>
 
-            <HBox spacing="20">
-                <Label fx:id="playerLabel" text="Player: Player" />
-                <Label fx:id="opponentLabel" text="Opponent: Opponent" />
-                <Label fx:id="winnerLabel" text="Winner: TBD" />
+            <HBox AnchorPane.rightAnchor="5" AnchorPane.topAnchor="5" spacing="3">
+                <Button onAction="#saveLogs" styleClass="square-button" text="💾"/>
+                <Button onAction="#clearLogs" styleClass="square-button" text="🗑️"/>
             </HBox>
-
-            <HBox spacing="10">
-                <Button text="Join Match"/>
-
-                <Button text="Play Match"/>
-
-                <Button text="Load Match History"/>
-
-                <Button text="Reset Local View"/>
-            </HBox>
-
-        </VBox>
-    </bottom>
-
-</BorderPane>
+        </AnchorPane>
+    </HBox>
+</VBox>

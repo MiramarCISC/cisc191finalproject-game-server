@@ -6,4 +6,4 @@ target/
 *.log
 
 # File-based H2 database files for the Spring Boot server
-game-server/data/
+data/

@@ -1,0 +1,36 @@
+.root {
+    -fx-font-family: Helvetica, 'sans-serif';
+    -fx-font-weight: 600;
+}
+
+.title {
+    -fx-font-size: 24;
+    -fx-font-weight: 650;
+    -fx-alignment: center;
+}
+
+.subtitle {
+    -fx-alignment: center;
+}
+
+.log-flow {
+    -fx-font-family: 'Courier New';
+    -fx-font-weight: 700;
+}
+
+.square-button {
+    -fx-pref-width: 25px;
+    -fx-pref-height: 25px;
+
+    -fx-font-size: 9;
+    -fx-opacity: 0.5;
+
+    -fx-min-width: -fx-pref-width;
+    -fx-max-width: -fx-pref-width;
+    -fx-min-height: -fx-pref-height;
+    -fx-max-height: -fx-pref-height;
+}
+
+.square-button:hover {
+    -fx-opacity: 0.8;
+}
