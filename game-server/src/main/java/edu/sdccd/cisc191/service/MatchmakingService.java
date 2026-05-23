@@ -114,4 +114,27 @@ public class MatchmakingService {
                 };
             }).toArray(String[][]::new);
     }
+
+    public PlayerAccount recursiveGetPlayerByUsername(String username) {
+        List<PlayerAccount> players = playerAccountRepository.findAll();
+
+        players.sort(Comparator.comparing(PlayerAccount::getUsername));
+
+        return recursiveGetPlayerByUsernameHelper(players, username, 0, players.size()-1);
+    }
+
+    private PlayerAccount recursiveGetPlayerByUsernameHelper(List<PlayerAccount> players, String username, int low, int high) {
+        if (low > high) return null;
+
+        int mid = (low + high) / 2;
+        int comparison = players.get(mid).getUsername().compareTo(username);
+
+        if (comparison == 0) {
+            return players.get(mid);
+        } else if (comparison > 0) {
+            return recursiveGetPlayerByUsernameHelper(players, username, low, --mid);
+        } else {
+            return recursiveGetPlayerByUsernameHelper(players, username, ++mid, high);
+        }
+    }
 }

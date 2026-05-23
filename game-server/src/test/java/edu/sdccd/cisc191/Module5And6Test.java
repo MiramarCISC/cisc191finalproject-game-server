@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @Import(MatchmakingService.class)
-public class Module6Test {
+public class Module5And6Test {
 
     @Autowired
     private MatchmakingService matchmakingService;
@@ -33,7 +33,13 @@ public class Module6Test {
     }
 
     @Test
-    public void matchmakingService_LeaderboardArray_sortAndRetrieveTest() {
+    public void mod5_MatchmakingService_getPlayerRecursive() {
+        PlayerAccount player = matchmakingService.recursiveGetPlayerByUsername("Link");
+        assertEquals("Link", player.getUsername());
+    }
+
+    @Test
+    public void mod6_MatchmakingService_LeaderboardArray_sortAndRetrieveTest() {
         // Uses collections internally
         String[][] leaderboard = matchmakingService.getLeaderboardArray();
 
