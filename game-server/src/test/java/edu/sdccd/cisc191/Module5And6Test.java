@@ -32,13 +32,13 @@ public class Module5And6Test {
         playerAccountRepository.save(new PlayerAccount("Link", 900));
     }
 
-    @Test
+    @Test // Module 5
     public void mod5_MatchmakingService_getPlayerRecursive() {
         PlayerAccount player = matchmakingService.recursiveGetPlayerByUsername("Link");
         assertEquals("Link", player.getUsername());
     }
 
-    @Test
+    @Test // Module 6 -> Collections
     public void mod6_MatchmakingService_LeaderboardArray_sortAndRetrieveTest() {
         // Uses collections internally
         String[][] leaderboard = matchmakingService.getLeaderboardArray();

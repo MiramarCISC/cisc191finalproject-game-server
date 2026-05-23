@@ -1,6 +1,7 @@
 package edu.sdccd.cisc191.client;
 
 import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
+import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
 import edu.sdccd.cisc191.client.util.Logger;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -9,23 +10,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class Module2Test {
+public class Module2and7Test {
 
     @Mock
     private Logger logger;
 
-    /**
-     * Tests Module 2's functional interfaces (in this case, {@code Supplier<V>} and {@code Consumer<V>}
-     * </p>
-     * Primarily serves as a test for parallel execution (applicable to Module 7)
-     */
-    @Test
+    @Test // Module 2
     public void httpRequestExecutor_ParallelExecutionTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicInteger testInt = new AtomicInteger(1);
@@ -60,5 +57,42 @@ public class Module2Test {
         // Supposed to trigger a race condition, resulting in: (1×2)+3=5.
         // If it was run synchronously, it would result in: (1+3)×2=8.
         assertEquals(5, testInt.get(), "Callback did not run asynchronously.");
+    }
+
+    @Test // Module 7; HttpRequestExecutor is vital to the client.
+    public void httpRequestExecutor_successCallbackTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<String> result = new AtomicReference<>();
+
+        HttpRequestExecutor.tryRequest(() -> "success", logger)
+            .onSuccess(response -> {
+                result.set(response);
+                latch.countDown();
+            });
+
+        boolean completedInTime = latch.await(200, TimeUnit.MILLISECONDS);
+
+        assertTrue(completedInTime, "Timed out waiting for request.");
+        assertEquals("success", result.get());
+    }
+
+    @Test // Module 7; HttpRequestExecutor is vital to the client.
+    public void httpRequestExecutor_failureCallbackTest() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<String> result = new AtomicReference<>();
+
+        HttpRequestExecutor.tryRequest(() -> { throw new InvalidPlayerException("failure"); }, logger)
+            .onFailure(InvalidPlayerException.class, (e) -> {
+                result.set(e.getMessage());
+                latch.countDown();
+            })
+            .onSuccess(response -> {
+                fail("Should not be called");
+            });
+
+        boolean completedInTime = latch.await(200, TimeUnit.MILLISECONDS);
+
+        assertTrue(completedInTime, "Timed out waiting for request.");
+        assertEquals("failure", result.get());
     }
 }
