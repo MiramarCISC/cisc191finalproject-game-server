@@ -26,7 +26,7 @@ public class Module2Test {
      * Primarily serves as a test for parallel execution (applicable to Module 7)
      */
     @Test
-    public void HttpRequestExecutor_ParallelExecutionTest() throws InterruptedException {
+    public void httpRequestExecutor_ParallelExecutionTest() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicInteger testInt = new AtomicInteger(1);
 
@@ -56,7 +56,9 @@ public class Module2Test {
         boolean completedInTime = latch.await(1, TimeUnit.SECONDS);
 
 
-        assertTrue(completedInTime, "Timed out waiting for request");
-        assertEquals(5, testInt.get());
+        assertTrue(completedInTime, "Timed out waiting for request.");
+        // Supposed to trigger a race condition, resulting in: (1×2)+3=5.
+        // If it was run synchronously, it would result in: (1+3)×2=8.
+        assertEquals(5, testInt.get(), "Callback did not run asynchronously.");
     }
 }

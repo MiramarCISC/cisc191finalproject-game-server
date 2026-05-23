@@ -5,10 +5,12 @@ import edu.sdccd.cisc191.client.net.dto.PlayerResponse;
 import edu.sdccd.cisc191.client.net.dto.QueueEntryResponse;
 import edu.sdccd.cisc191.client.net.exception.InvalidMatchException;
 import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -16,8 +18,18 @@ import java.util.List;
 public class GameHttpService {
     private final RestClient restClient;
 
-    public GameHttpService(RestClient restClient) {
-        this.restClient = restClient;
+    public GameHttpService(
+        RestClient.Builder builder,
+        @Value("${api.server.base-url}") String baseUrl,
+        @Value("${api.server.port}") String port,
+        @Value("${api.server.endpoint}") String endpoint
+    ) {
+        this.restClient = builder
+            .baseUrl(UriComponentsBuilder
+                .fromUriString(baseUrl).port(port).path(endpoint)
+                .build().toUri()
+            ).defaultHeader("Accept", "application/json")
+            .build();
     }
 
     public PlayerResponse registerPlayer(String username, int rating) {
