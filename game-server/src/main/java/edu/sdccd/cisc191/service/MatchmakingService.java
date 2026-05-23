@@ -1,6 +1,7 @@
 package edu.sdccd.cisc191.service;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -115,6 +116,14 @@ public class MatchmakingService {
             }).toArray(String[][]::new);
     }
 
+    public String[][] getTopNPlayersSortedAlpha(String[][] leaderboardArray, int n) {
+        String[][] workingArray = Arrays.copyOf(leaderboardArray, n);
+
+        return Arrays.stream(workingArray)
+            .sorted(Comparator.comparing(e -> e[0]))
+            .toArray(String[][]::new);
+    }
+
     public PlayerAccount recursiveGetPlayerByUsername(String username) {
         List<PlayerAccount> players = playerAccountRepository.findAll();
 
@@ -124,7 +133,7 @@ public class MatchmakingService {
     }
 
     private PlayerAccount recursiveGetPlayerByUsernameHelper(List<PlayerAccount> players, String username, int low, int high) {
-        if (low > high) return null;
+        if (low > high) throw new PlayerNotFoundException();
 
         int mid = (low + high) / 2;
         int comparison = players.get(mid).getUsername().compareTo(username);

@@ -1,139 +1,117 @@
-[![Open in Codespaces](https://classroom.github.com/assets/launch-codespace-2972f46106e565e64193e422d61a12cf1da4916b45550586e14ef0a7c637dd04.svg)](https://classroom.github.com/open-in-codespaces?assignment_repo_id=23909361)
-# Spring Boot 3 Web Client + gRPC + JPA/H2 1v1 Match Lab
+# Spring Game Dashboard & Server
+*A simple Spring Boot REST-based game client dashboard and server implementation*
 
 ## Overview
 
-This GitHub Classroom lab uses:
+This project contains both `game-client` and `game-server`, communicating over REST and testing out basic functions related to starting up and managing a match-based game server with player persistence.
 
-- **Spring Boot 3.5.14** for the game server
-- **Spring Boot 3 web client** for the browser interface
-- **gRPC + Protobuf** between the web client module and the game server module
-- **Spring Data JPA** for persistence
-- **File-based H2** database for saved matches
+This is meant to provide basic backend and frontend infrastructure to easily test a functional game server API with a robust JavaFX-based dashboard that can be easily refitted into working as a fully functional game client.
 
-This version does **not** use JavaFX or FXML.
+The server contains methods managing **match lifecycles**, **player registration**, **queuing**, and **player data requests**—reducing the need to thoroughly troubleshoot and implement such from scratch.
 
-The browser talks to the `game-client` Spring Boot app using normal HTTP/JSON. The `game-client` then calls the `game-server` through gRPC. The `game-server` persists matches with JPA/H2.
+Essentially, the Dashboard and Server serve as a robust template for easily implementing 1v1 games using REST, Spring Boot, and Java.
 
-## Architecture
+## Running Project
 
-```text
-Browser
-  ↓ HTTP/JSON
-game-client Spring Boot web app
-  ↓ gRPC/Protobuf
-game-server Spring Boot gRPC service
-  ↓ Spring Data JPA
-file-based H2 database
-```
+### Dependencies
 
-## Modules
+The project requires that these be installed prior to running:
 
-| Module | Purpose |
-|---|---|
-| `game-server` | Spring Boot 3 app hosting the gRPC service and persisting matches |
-| `game-client` | Spring Boot 3 web app serving HTML/CSS/JS and proxying calls to gRPC |
+* Java 21 or later ([Eclipse Temurin JDK](https://adoptium.net/temurin/releases?version=21&os=any&arch=any) recommended)
+* [Maven](https://maven.apache.org/)
+* [JavaFX](https://openjfx.io/)
 
-## Build
+It is highly recommended that you run and modify this codebase using [IntelliJ IDEA](https://www.jetbrains.com/idea/download).
 
-From the project root:
+Before running either module, build the entire project from the root directory:
 
 ```bash
 mvn clean install
 ```
 
-This generates Java classes from:
+### Running the Client
 
-```text
-game-server/src/main/proto/game_service.proto
-game-client/src/main/proto/game_service.proto
-```
-
-## Run the Spring Boot 3 gRPC Server
-
-Terminal 1:
+Prior to running the client, you must first allow Maven to install the project's required dependencies.
 
 ```bash
-cd game-server
+cd game-client && mvn clean install
+```
+
+After Maven finishes installing, you may then start the client through JavaFX's Maven Plugin:
+
+```bash
+mvn javafx:run
+```
+
+### Running the Server
+
+Prior to running the server, you must first allow Maven to install the project's required dependencies.
+
+```bash
+cd game-server && mvn clean install
+```
+
+You must also ensure that `localhost:8080` is not currently locked by any program.
+
+```bash
+# These commands may require administrator/sudo privileges.
+# Double-check any and all tasks being killed in your operating system's system monitor.
+
+# Windows
+netstat -ano | findstr :8080
+taskkill /pid [PID] /f
+
+# macOS / Linux 
+lsof -i :8080
+kill -9 [PID]
+```
+
+Afterward, you may finally start the server using Spring Boot's Maven Plugin:
+```bash
 mvn spring-boot:run
 ```
 
-Expected output:
 
-```text
-Spring Boot 3 gRPC Game Server started on port 50051
-```
+## Running Tests
 
-## Run the Spring Boot 3 Web Client
+### Client
 
-Terminal 2:
+Prior to running the client's JUnit tests, please ensure that you have followed the steps to set up the client in [the previous section](#running-the-client).
+
+Afterward, you can run the client's JUnit tests using Maven:
 
 ```bash
-cd game-client
-mvn spring-boot:run
+cd game-client &&  mvn test
 ```
 
-Open:
+### Server
 
-```text
-http://localhost:9091
+Prior to running the server's JUnit tests, please ensure that you have followed the steps to set up the server in [the previous section](#running-the-server).
+
+Afterward, you can run the server's JUnit tests using Maven:
+
+```bash
+cd game-server && mvn test
 ```
 
-## Persistence
 
-The server persists matches using Spring Data JPA and H2.
+## Modules
 
-| File | Purpose |
-|---|---|
-| `MatchEntity.java` | JPA entity stored in the database |
-| `MatchRepository.java` | Spring Data repository for saved matches |
-| `game-server/src/main/resources/application.properties` | Configures file-based H2 |
-| `.gitignore` | Prevents local database files from being committed |
+| Module Topic                                           | Feature/Purpose                                                                                                                                     | Code File Path                                                                                      | Test File Path                                                                           |
+|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Module 1: Arrays + OO Refresh                          | Allows the server to send the top N best players to the client by truncating the leaderboard and sorting.                                           | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [119-125]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [34-46]    |
+| Module 2: OO Design + Functional Interfaces            | Provides an easy to use, robust fluent API that reduces boilerplate and ensures compile-time safety.                                                | `game-client/src/main/java/edu/sdccd/cisc191/client/net/HttpRequestExecutor.java`, lines [12-80]    | `game-client/src/test/java/edu/sdccd/cisc191/client/Module2and7Test.java`, lines [25-60] |
+| Module 3: Inheritance + Polymorphism                   | TBD                                                                                                                                                 |                                                                                                     |
+| Module 4: Exceptions + File I/O + Database Persistence | Allows the server to persist information about players during runtime using Spring JPA and H2.                                                      | `game-server/src/main/java/edu/sdccd/cisc191/repository/PlayerAccountRepository.java`, lines [9-12] | `game-server/src/test/java/edu/sdccd/cisc191/Module4Test.java`, lines [18-34]            |
+| Module 5: Recursion + Algorithms                       | Allows the server to efficiently find players by username through the use of a binary search algorithm.                                             | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [127-148]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [49-52]    |
+| Module 6: Collections + Generics + Advanced Streams    | Allows the server to compile a leaderboard of players sorted descending by ratings robustly and efficiently using Java's Stream API and collectons. | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [106-116]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [54-79]    |
+| Module 7: JavaFX + Events + Lambdas                    | Provides a functional client UI for testing server functionality, as well as potentially allows a more proper client implementation.                | `game-client/src/main/java/edu/sdccd/cisc191/client/GameClientApplication.java`, lines [26-40]      | `game-client/src/test/java/edu/sdccd/cisc191/client/Module2and7Test.java`, lines [62-77] |
 
-The database URL is:
 
-```properties
-spring.datasource.url=jdbc:h2:file:./data/game-server-db
-```
+## Reflections
 
-Local database files are created under:
+### What I am most proud of:
+> TBD
 
-```text
-game-server/data/
-```
-
-These files should not be committed.
-
-## Important Design Choices
-
-| Removed Feature | Replacement |
-|---|---|
-| JavaFX/FXML desktop UI | Spring Boot web client with HTML/CSS/JS |
-| Direct browser-to-server REST API | Browser calls web client; web client calls gRPC server |
-| JSON between modules | gRPC/protobuf between modules |
-| Player roles | Difficulty only |
-| HP tracking | Server returns winner and loser |
-| In-memory-only match storage | Spring Data JPA with file-based H2 |
-
-## Required TODOs
-
-1. Verify the browser UI sends requests to the `game-client` REST facade.
-2. Verify the `game-client` calls the `game-server` using gRPC.
-3. Verify completed matches are saved through Spring Data JPA.
-4. Verify match history loads from persisted JPA records.
-5. Add one small web UI improvement.
-6. Complete a Pull Request peer review.
-
-## Reflection Questions
-
-1. What does the browser client do?
-2. What does the `game-client` Spring Boot app do?
-3. What does the `game-server` Spring Boot app do?
-4. Why does this project still use gRPC if the UI is web-based?
-5. What data is sent in `JoinMatchRequest`?
-6. What data is returned in `MatchResultResponse`?
-7. What is the purpose of `MatchEntity`?
-8. What is the purpose of `MatchRepository`?
-9. Why are H2 database files ignored by Git?
-10. What did your peer reviewer suggest?
-11. What did you change after peer review?
+### What I would improve with more time:
+> TBD
