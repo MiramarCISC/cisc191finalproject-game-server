@@ -3,6 +3,7 @@ package edu.sdccd.cisc191.service;
 import java.time.Instant;
 import java.util.List;
 
+import edu.sdccd.cisc191.exception.PlayerNotFoundException;
 import org.springframework.stereotype.Service;
 
 import edu.sdccd.cisc191.model.MatchRecord;
@@ -49,7 +50,7 @@ public class MatchmakingService {
 
     public QueueEntry enqueuePlayer(Long playerId) {
         PlayerAccount player = playerAccountRepository.findById(playerId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(PlayerNotFoundException::new);
 
         QueueEntry entry = new QueueEntry(player, Instant.now());
         return queueEntryRepository.save(entry);
@@ -61,10 +62,10 @@ public class MatchmakingService {
         }
 
         PlayerAccount playerOne = playerAccountRepository.findById(playerOneId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(PlayerNotFoundException::new);
 
         PlayerAccount playerTwo = playerAccountRepository.findById(playerTwoId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(PlayerNotFoundException::new);
 
         MatchRecord record = new MatchRecord(playerOne, playerTwo, arenaName, MatchStatus.OPEN);
         return matchRecordRepository.save(record);
@@ -75,10 +76,10 @@ public class MatchmakingService {
             .orElseThrow(IllegalArgumentException::new);
 
         PlayerAccount playerWinner = playerAccountRepository.findById(winnerId)
-            .orElseThrow(IllegalArgumentException::new);
+            .orElseThrow(PlayerNotFoundException::new);
 
         if (!match.getPlayerOne().equals(playerWinner) && !match.getPlayerTwo().equals(playerWinner)) {
-            throw new IllegalArgumentException("Player does not exist in match.");
+            throw new PlayerNotFoundException();
         }
 
         match.setWinner(playerWinner);
@@ -95,7 +96,7 @@ public class MatchmakingService {
     public List<MatchRecord> findRecentMatchesForPlayer(Long playerId) {
         // Checking for Player existence.
         if (!playerAccountRepository.existsById(playerId)) {
-            throw new IllegalArgumentException("Player does not exist.");
+            throw new PlayerNotFoundException();
         }
 
         return matchRecordRepository.findByPlayerOneIdOrPlayerTwoIdOrderByIdDesc(playerId, playerId);
