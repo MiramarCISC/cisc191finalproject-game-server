@@ -5,6 +5,7 @@ import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.ui.util.FlowLogger;
 import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.text.TextFlow;
@@ -50,8 +51,10 @@ public class GameController {
             .onSuccess(queue -> {
                 logger.info("Successfully fetched queue data");
 
-                WindowManager.spawnWindow(ViewType.QUEUE_VIEW, false, controller -> {
-                    controller.setQueue(queue);
+                Platform.runLater(() -> {
+                    WindowManager.spawnWindow(ViewType.QUEUE_VIEW, false, controller -> {
+                        controller.setQueue(queue);
+                    });
                 });
             });
     }

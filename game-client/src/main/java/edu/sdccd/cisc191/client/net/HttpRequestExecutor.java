@@ -11,27 +11,41 @@ import java.util.function.Supplier;
 
 public class HttpRequestExecutor<T> {
     private static final ExecutorService executor = Executors.newFixedThreadPool(1);
-
     private final Logger logger;
 
-    private final CompletableFuture<T> futureResult;
-    private Throwable caughtException;
-    private boolean isHandledException = false;
+    private CompletableFuture<ResultWrapper<T>> futureResult;
 
-    public HttpRequestExecutor(Supplier<T> task, Logger logger) {
+    // Internal state wrapper
+    private static class ResultWrapper<V> {
+        V value;
+        Throwable exception;
+        boolean isHandled = false;
+
+        ResultWrapper(V value, Throwable exception) {
+            this.value = value;
+            this.exception = exception;
+        }
+    }
+
+    private HttpRequestExecutor(Supplier<T> task, Logger logger) {
         this.logger = logger;
 
-        this.futureResult = CompletableFuture.supplyAsync(task, executor)
-            .exceptionally(e -> {
-                this.caughtException = e.getCause() != null ? e.getCause() : e;
+        this.futureResult = CompletableFuture.supplyAsync(() -> {
+            try {
+                return new ResultWrapper<>(task.get(), null);
+            } catch (Throwable e) {
+                Throwable caught = e.getCause() != null ? e.getCause() : e;
 
-                if (this.caughtException instanceof ResourceAccessException) {
-                    this.isHandledException = true;
+                if (caught instanceof ResourceAccessException) {
                     logger.error("Could not reach server! Is server up?", e);
+                    ResultWrapper<T> wrapper = new ResultWrapper<>(null, caught);
+                    wrapper.isHandled = true;
+                    return wrapper;
                 }
 
-                return null;
-            });
+                return new ResultWrapper<>(null, caught);
+            }
+        }, executor);
     }
 
     public static <T> HttpRequestExecutor<T> tryRequest(Supplier<T> task, Logger logger) {
@@ -39,27 +53,28 @@ public class HttpRequestExecutor<T> {
     }
 
     public <U extends Exception> HttpRequestExecutor<T> onFailure(Class<U> exception, Consumer<? super U> callback) {
-        futureResult.join();
-
-        if (caughtException != null) {
-            if (exception.isInstance(caughtException)) {
-                callback.accept(exception.cast(caughtException));
-                isHandledException = true;
+        this.futureResult = this.futureResult.thenApply(wrapper -> {
+            if (wrapper.exception != null && !wrapper.isHandled) {
+                if (exception.isInstance(wrapper.exception)) {
+                    callback.accept(exception.cast(wrapper.exception));
+                    wrapper.isHandled = true;
+                }
             }
-        }
+            return wrapper;
+        });
 
         return this;
     }
 
     public void onSuccess(Consumer<T> callback) {
-        futureResult.join();
-
-        if (caughtException != null) {
-            if (!isHandledException) {
-                logger.error("Error during HTTP Request", caughtException);
+        this.futureResult.thenAccept(wrapper -> {
+            if (wrapper.exception != null) {
+                if (!wrapper.isHandled) {
+                    logger.error("Error during HTTP Request", wrapper.exception);
+                }
+            } else {
+                callback.accept(wrapper.value);
             }
-        } else {
-            callback.accept(futureResult.join());
-        }
+        });
     }
 }

@@ -7,6 +7,7 @@ import edu.sdccd.cisc191.client.ui.util.NumberHelper;
 import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
 import edu.sdccd.cisc191.client.util.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -50,14 +51,16 @@ public class RequestMatchesController {
                 } else {
                     logger.info("Successfully fetched match data");
 
-                    WindowManager.spawnWindow(ViewType.PAST_MATCH_VIEW, false, controller -> {
-                        controller.setMatchList(response);
+                    Platform.runLater(() -> {
+                        WindowManager.spawnWindow(ViewType.PAST_MATCH_VIEW, false, controller -> {
+                            controller.setMatchList(response);
 
-                        String playerName = playerId == response.getFirst().playerOneId()
-                            ? response.getFirst().playerOneUsername()
-                            : response.getFirst().playerTwoUsername();
+                            String playerName = playerId == response.getFirst().playerOneId()
+                                ? response.getFirst().playerOneUsername()
+                                : response.getFirst().playerTwoUsername();
 
-                        controller.setPlayer(playerName, playerId);
+                            controller.setPlayer(playerName, playerId);
+                        });
                     });
                 }
             });
