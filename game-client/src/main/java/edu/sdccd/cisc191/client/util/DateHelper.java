@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.client.ui.util;
+package edu.sdccd.cisc191.client.util;
 
 import java.time.Instant;
 import java.time.ZoneId;

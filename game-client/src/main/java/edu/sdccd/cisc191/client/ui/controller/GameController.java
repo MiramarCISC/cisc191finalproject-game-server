@@ -1,5 +1,7 @@
 package edu.sdccd.cisc191.client.ui.controller;
 
+import edu.sdccd.cisc191.client.net.GameHttpService;
+import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.ui.util.FlowLogger;
 import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
@@ -15,8 +17,14 @@ import java.io.IOException;
 
 @Component
 public class GameController {
+    private final GameHttpService gameHttpService;
+
     @FXML private TextFlow logFlow;
     private FlowLogger logger;
+
+    public GameController(GameHttpService gameHttpService) {
+        this.gameHttpService = gameHttpService;
+    }
 
     @FXML
     private void initialize() {
@@ -32,6 +40,32 @@ public class GameController {
     @FXML
     private void enqueuePlayerWindow() {
         WindowManager.spawnWindow(ViewType.ENQUEUE_PLAYER, true);
+    }
+
+    @FXML
+    private void requestQueue() {
+        logger.debug("Requesting Queue...");
+
+        HttpRequestExecutor.tryRequest(gameHttpService::fetchQueue, logger)
+            .onSuccess(queue -> {
+                queue.stream();
+                //TODO: Finish this
+            });
+    }
+
+    @FXML
+    private void requestNewMatch() {
+        WindowManager.spawnWindow(ViewType.CREATE_MATCH, true);
+    }
+
+    @FXML
+    private void requestEndMatch() {
+       WindowManager.spawnWindow(ViewType.END_MATCH, true);
+    }
+
+    @FXML
+    private void requestPlayerMatches() {
+        WindowManager.spawnWindow(ViewType.REQUEST_MATCHES, true);
     }
 
     @FXML

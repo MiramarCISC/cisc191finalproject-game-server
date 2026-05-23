@@ -5,44 +5,50 @@ import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
 import edu.sdccd.cisc191.client.ui.util.NumberHelper;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
+import edu.sdccd.cisc191.client.util.DateHelper;
 import edu.sdccd.cisc191.client.util.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class RegisterPlayerController {
-    @FXML private TextField nameField;
-    @FXML private Spinner<Integer> ratingSpinner;
+public class RequestMatchesController {
+    @FXML private TextField idField;
 
     private final Logger logger;
     private final GameHttpService gameHttpService;
 
-    public RegisterPlayerController(GameController controller, GameHttpService gameHttpService) {
+    public RequestMatchesController(GameController controller, GameHttpService gameHttpService) {
         this.logger = controller.getLogger();
         this.gameHttpService = gameHttpService;
     }
 
     @FXML
     private void initialize() {
-        ratingSpinner.getEditor().setTextFormatter(NumberHelper.numberFormatter());
+        idField.setTextFormatter(NumberHelper.numberFormatter());
     }
 
     @FXML
     private void okAction(ActionEvent event) {
-        logger.debug("Requesting Player Register...");
+        long playerId;
+        try {
+            playerId = NumberHelper.parseLongOrAlert(idField.getText(), "player ID");
+        } catch (NumberFormatException e) { return; }
 
-        HttpRequestExecutor.tryRequest(() -> gameHttpService.registerPlayer(nameField.getText().trim(), ratingSpinner.getValue()), logger)
+        logger.debug("Requesting Player Enqueueing...");
+
+        HttpRequestExecutor.tryRequest(() -> gameHttpService.enqueuePlayer(playerId), logger)
             .onFailure(InvalidPlayerException.class, (e) -> {
-                logger.error("Player already exists or rating is invalid!", e);
-            }).onSuccess((response) -> {
+                logger.error("Player does not exist or is already enqueued!", e);
+            })
+            .onSuccess(response -> {
                 logger.info(
-                    "Registered ID %d: {username: '%s', rating: %d}",
-                    response.id(), response.username(), response.rating()
+                    "Successfully assigned player %s/#%d to queue position %d at %s",
+                    response.username(), response.playerId(), response.id(),
+                    DateHelper.formatInstant(response.joinedAt())
                 );
             });
 

@@ -34,11 +34,11 @@
         <VBox maxWidth="Infinity" maxHeight="Infinity" HBox.hgrow="NEVER" minWidth="150" spacing="5">
             <Button onAction="#requestRegisterWindow" text="Register Player" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
             <Button onAction="#enqueuePlayerWindow" text="Add Player to Queue" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
-            <Button text="Get Current Queue" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#requestQueue" text="Get Current Queue" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
 
-            <Button text="Start Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
-            <Button text="Finish Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
-            <Button text="Get Past Matches" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#requestNewMatch" text="Create Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#requestEndMatch" text="Finish Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#requestPlayerMatches" text="Get Past Matches" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
         </VBox>
 
         <AnchorPane HBox.hgrow="ALWAYS">

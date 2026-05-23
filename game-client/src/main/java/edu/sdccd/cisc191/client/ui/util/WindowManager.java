@@ -1,6 +1,7 @@
 package edu.sdccd.cisc191.client.ui.util;
 
 import edu.sdccd.cisc191.client.SpringContext;
+import jakarta.annotation.Nullable;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -8,9 +9,14 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class WindowManager {
-    public static void spawnWindow(ViewType vt, boolean isModal) {
+    public static void spawnWindow(ViewType<?> vt, boolean isModal) {
+        spawnWindow(vt, isModal, null);
+    }
+
+    public static <T> void spawnWindow(ViewType<T> vt, boolean isModal, @Nullable Consumer<T> initializer) {
         try {
             FXMLLoader loader = new FXMLLoader(vt.getURL());
             loader.setControllerFactory(SpringContext::getBean);
@@ -20,8 +26,12 @@ public class WindowManager {
             stage.setMinWidth(vt.width());
             stage.setMinHeight(vt.height());
             stage.setScene(scene);
-            stage.setTitle(vt.getViewTitle());
+            stage.setTitle(vt.viewTitle());
             stage.setResizable(vt.isResizable());
+
+            if (initializer != null) {
+                initializer.accept(loader.getController());
+            }
 
             if (isModal) {
                 stage.showAndWait();
@@ -29,7 +39,7 @@ public class WindowManager {
                 stage.show();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

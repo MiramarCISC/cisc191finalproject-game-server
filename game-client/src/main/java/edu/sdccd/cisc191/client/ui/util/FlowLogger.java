@@ -23,22 +23,28 @@ public class FlowLogger implements Logger {
         this.maxLines = maxLines;
     }
 
+    @Override
     public void info(String message, Object... args) {
+
         this.append(message, LogLevel.INFO, args);
     }
 
+    @Override
     public void debug(String message, Object... args) {
         this.append(message, LogLevel.DEBUG, args);
     }
 
+    @Override
     public void warn(String message, Object... args) {
         this.append(message, LogLevel.WARN, args);
     }
 
+    @Override
     public void error(String message, Object... args) {
         this.append(message, LogLevel.ERROR, args);
     }
 
+    @Override
     public void error(String message, Throwable e) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -70,8 +76,10 @@ public class FlowLogger implements Logger {
 
             for (String line : lines) {
                 Text text = new Text(line + '\n');
-                text.setFill(level.getColor());
                 text.getProperties().put("logLevel", level);
+                text.getStyleClass().add("log-" + level.name().toLowerCase());
+
+                System.out.println("log-" + level.name().toLowerCase());
 
                 textFlow.getChildren().add(text);
 

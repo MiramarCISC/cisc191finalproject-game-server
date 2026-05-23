@@ -1,12 +1,42 @@
 package edu.sdccd.cisc191.client.ui.util;
 
 import edu.sdccd.cisc191.client.GameClientApplication;
+import edu.sdccd.cisc191.client.ui.controller.*;
 
 import java.net.URL;
 
-public enum ViewType {
-    REGISTER_PLAYER("/view/register-player-view.fxml", "Register Player", 250, 160, false),
-    ENQUEUE_PLAYER("/view/enqueue-player-view.fxml", "Add Player to Queue", 250, 100, false);
+// NOTE: This is basically a fancy enum.
+// Made into a class to allow for generics.
+@SuppressWarnings("unused") // Phantom type, used in WindowManager
+public final class ViewType<T> {
+    public static final ViewType<RegisterPlayerController> REGISTER_PLAYER = new ViewType<>(
+        "/view/register-player.fxml",
+        "Register Player", 250, 160, false
+    );
+
+    public static final ViewType<EnqueuePlayerController> ENQUEUE_PLAYER = new ViewType<>(
+        "/view/enqueue-player.fxml",
+        "Add Player to Queue", 250, 100,
+        false
+    );
+
+    public static final ViewType<CreateMatchController> CREATE_MATCH = new ViewType<>(
+        "/view/create-match.fxml",
+        "Create Match", 250, 215,
+        false
+    );
+
+    public static final ViewType<EndMatchController> END_MATCH = new ViewType<>(
+        "/view/end-match.fxml",
+        "Finish Match", 250, 160,
+        false
+    );
+
+    public static final ViewType<RequestMatchesController> REQUEST_MATCHES = new ViewType<>(
+        "/view/request-matches.fxml",
+        "Get Past Matches", 250, 100,
+        false
+    );
 
     private final String fxmlPath;
     private final String viewTitle;
@@ -14,7 +44,7 @@ public enum ViewType {
     private final double height;
     private final boolean isResizable;
 
-    ViewType(String fxmlPath, String viewTitle, double width, double height, boolean isResizable) {
+    private ViewType(String fxmlPath, String viewTitle, double width, double height, boolean isResizable) {
         this.fxmlPath = fxmlPath;
         this.viewTitle = viewTitle;
         this.width = width;
@@ -26,7 +56,11 @@ public enum ViewType {
         return GameClientApplication.class.getResource(fxmlPath);
     }
 
-    public String getViewTitle() {
+    public String fxmlPath() {
+        return fxmlPath;
+    }
+
+    public String viewTitle() {
         return viewTitle;
     }
 

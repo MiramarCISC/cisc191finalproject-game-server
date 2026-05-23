@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.sdccd.cisc191.client.ui.controller.CreateMatchController"
+      prefWidth="250.0" prefHeight="215.0"
+      spacing="10.0">
+
+    <padding>
+        <Insets top="10" bottom="10" left="10" right="10"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <VBox spacing="5">
+        <Label text="Player 1 ID:"/>
+        <TextField fx:id="player1IdField"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Player 2 ID:"/>
+        <TextField fx:id="player2IdField"/>
+    </VBox>
+
+    <VBox spacing="5">
+        <Label text="Arena Name:"/>
+        <TextField fx:id="arenaField"/>
+    </VBox>
+
+    <HBox spacing="5" alignment="BOTTOM_RIGHT">
+        <Button onAction="#okAction" text="OK" defaultButton="true" minWidth="70"/>
+        <Button onAction="#closeAction" text="Cancel" cancelButton="true" minWidth="70"/>
+    </HBox>
+</VBox>

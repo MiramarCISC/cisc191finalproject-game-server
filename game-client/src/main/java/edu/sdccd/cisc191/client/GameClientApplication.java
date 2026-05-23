@@ -37,8 +37,8 @@ public class GameClientApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        stage.setMinWidth(700);
-        stage.setMinHeight(360);
+        stage.setMinWidth(500);
+        stage.setMinHeight(300);
     }
 
     @Override

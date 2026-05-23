@@ -34,3 +34,25 @@
 .square-button:hover {
     -fx-opacity: 0.8;
 }
+
+
+/* Built-in Logger */
+/*noinspection CssUnusedSymbol*/
+.log-error {
+    -fx-fill: red;
+}
+
+/*noinspection CssUnusedSymbol*/
+.log-warn {
+    -fx-fill: orange;
+}
+
+/*noinspection CssUnusedSymbol*/
+.log-info {
+    -fx-fill: green;
+}
+
+/*noinspection CssUnusedSymbol*/
+.log-debug {
+    -fx-fill: gray;
+}

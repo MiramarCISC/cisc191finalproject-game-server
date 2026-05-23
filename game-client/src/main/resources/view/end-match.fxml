@@ -4,11 +4,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import java.lang.Integer?>
 <?import java.net.URL?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="edu.sdccd.cisc191.client.ui.controller.RegisterPlayerController"
+      fx:controller="edu.sdccd.cisc191.client.ui.controller.EndMatchController"
       prefWidth="250.0" prefHeight="160.0"
       spacing="10.0">
 
@@ -21,21 +20,13 @@
     </stylesheets>
 
     <VBox spacing="5">
-        <Label text="Player Username:"/>
-        <TextField fx:id="nameField"/>
+        <Label text="Match ID:"/>
+        <TextField fx:id="matchIdField"/>
     </VBox>
 
     <VBox spacing="5">
-        <Label text="Player Rating:"/>
-        <Spinner fx:id="ratingSpinner" maxWidth="Infinity">
-            <valueFactory>
-                <SpinnerValueFactory.IntegerSpinnerValueFactory min="0" initialValue="0">
-                    <max>
-                        <Integer fx:constant="MAX_VALUE"/>
-                    </max>
-                </SpinnerValueFactory.IntegerSpinnerValueFactory>
-            </valueFactory>
-        </Spinner>
+        <Label text="Winner Player ID:"/>
+        <TextField fx:id="winnerIdField"/>
     </VBox>
 
     <HBox spacing="5" alignment="BOTTOM_RIGHT">
