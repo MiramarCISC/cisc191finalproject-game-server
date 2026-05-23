@@ -38,6 +38,18 @@ public final class ViewType<T> {
         false
     );
 
+    public static final ViewType<QueueViewController> QUEUE_VIEW = new ViewType<>(
+        "/view/queue-view.fxml",
+        "Current Queue", 400, 250,
+        true
+    );
+
+    public static final ViewType<PastMatchViewController> PAST_MATCH_VIEW = new ViewType<>(
+        "/view/past-match-view.fxml",
+        "Past Matches for Player", 400, 250,
+        true
+    );
+
     private final String fxmlPath;
     private final String viewTitle;
     private final double width;

@@ -4,6 +4,7 @@ import edu.sdccd.cisc191.client.net.GameHttpService;
 import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
 import edu.sdccd.cisc191.client.ui.util.NumberHelper;
+import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
 import edu.sdccd.cisc191.client.util.Logger;
 import javafx.event.ActionEvent;
@@ -44,7 +45,21 @@ public class RequestMatchesController {
                 logger.error("Player does not exist!", e);
             })
             .onSuccess(response -> {
-                //TODO: Finish this
+                if (response.isEmpty()) {
+                    logger.warn("Player has no associated match data.");
+                } else {
+                    logger.info("Successfully fetched match data");
+
+                    WindowManager.spawnWindow(ViewType.PAST_MATCH_VIEW, false, controller -> {
+                        controller.setMatchList(response);
+
+                        String playerName = playerId == response.getFirst().playerOneId()
+                            ? response.getFirst().playerOneUsername()
+                            : response.getFirst().playerTwoUsername();
+
+                        controller.setPlayer(playerName, playerId);
+                    });
+                }
             });
 
         WindowManager.closeWindow(event);

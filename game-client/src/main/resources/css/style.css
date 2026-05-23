@@ -5,7 +5,7 @@
 
 .title {
     -fx-font-size: 24;
-    -fx-font-weight: 650;
+    -fx-font-weight: 700;
     -fx-alignment: center;
 }
 
@@ -13,8 +13,12 @@
     -fx-alignment: center;
 }
 
+.inline-title {
+    -fx-font-weight: 700;
+}
+
 .log-flow {
-    -fx-font-family: 'Courier New';
+    -fx-font-family: 'Courier New', 'monospace';
     -fx-font-weight: 700;
 }
 
@@ -44,7 +48,7 @@
 
 /*noinspection CssUnusedSymbol*/
 .log-warn {
-    -fx-fill: orange;
+    -fx-fill: darkorange;
 }
 
 /*noinspection CssUnusedSymbol*/

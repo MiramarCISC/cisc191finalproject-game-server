@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.sdccd.cisc191.client.ui.node.controlller.QueueEntryCellController"
+      spacing="5" fx:id="cellContainer">
+
+    <padding>
+        <Insets top="5" bottom="5" left="5" right="5"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <HBox spacing="5">
+        <VBox alignment="CENTER">
+            <padding>
+                <Insets top="5" bottom="5" right="10"/>
+            </padding>
+
+            <Label styleClass="inline-title" text="1" fx:id="positionLabel"/>
+        </VBox>
+
+        <VBox>
+            <HBox>
+                <Label styleClass="inline-title" text="Player: "/>
+                <Label text="placeholder1234" fx:id="playerNameLabel"/>
+                <Label text="/#"/>
+                <Label text="1234" fx:id="playerIdLabel"/>
+            </HBox>
+
+            <HBox>
+                <Label styleClass="inline-title" text="Joined at: "/>
+                <Label fx:id="instantLabel" text="12:00:00 AM"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+</VBox>

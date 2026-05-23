@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.sdccd.cisc191.client.ui.node.controlller.MatchEntryCellController"
+      spacing="5" fx:id="cellContainer">
+
+    <padding>
+        <Insets top="5" bottom="5" left="5" right="5"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <HBox>
+        <Label styleClass="inline-title" text="Match #"/>
+        <Label styleClass="inline-title" text="1234" fx:id="matchIdLabel"/>
+        <Label text=" ("/>
+        <Label text="FINISHED" fx:id="matchStatusLabel"/>
+        <Label text=")"/>
+    </HBox>
+
+    <HBox>
+        <Label styleClass="inline-title" text="Arena: "/>
+        <Label fx:id="arenaLabel" text="Test Arena"/>
+    </HBox>
+
+    <HBox>
+        <VBox HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" fx:id="playerOneNameContainer">
+                <Label fx:id="playerOneNameLabel" text="placeholder"/>
+                <Label text="/#"/>
+                <Label fx:id="playerOneIdLabel" text="1234"/>
+            </HBox>
+
+            <HBox alignment="CENTER">
+                <Label fx:id="playerOneWinnerLabel" text="(winner)"/>
+            </HBox>
+        </VBox>
+
+        <Label text=" vs. "/>
+
+        <VBox HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" fx:id="playerTwoNameContainer">
+                <Label fx:id="playerTwoNameLabel" text="holderplace"/>
+                <Label text="/#"/>
+                <Label fx:id="playerTwoIdLabel" text="5678"/>
+            </HBox>
+
+            <HBox alignment="CENTER">
+                <Label fx:id="playerTwoWinnerLabel" text="(winner)"/>
+            </HBox>
+        </VBox>
+    </HBox>
+</VBox>

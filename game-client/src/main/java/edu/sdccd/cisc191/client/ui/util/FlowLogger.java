@@ -79,8 +79,6 @@ public class FlowLogger implements Logger {
                 text.getProperties().put("logLevel", level);
                 text.getStyleClass().add("log-" + level.name().toLowerCase());
 
-                System.out.println("log-" + level.name().toLowerCase());
-
                 textFlow.getChildren().add(text);
 
                 if (textFlow.getChildren().size() > maxLines) {

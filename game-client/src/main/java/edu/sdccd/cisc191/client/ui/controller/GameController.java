@@ -48,8 +48,11 @@ public class GameController {
 
         HttpRequestExecutor.tryRequest(gameHttpService::fetchQueue, logger)
             .onSuccess(queue -> {
-                queue.stream();
-                //TODO: Finish this
+                logger.info("Successfully fetched queue data");
+
+                WindowManager.spawnWindow(ViewType.QUEUE_VIEW, false, controller -> {
+                    controller.setQueue(queue);
+                });
             });
     }
 
@@ -89,6 +92,7 @@ public class GameController {
             try (FileWriter writer = new FileWriter(file)) {
                 writer.append(logger.getText());
             } catch (IOException e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
 
                 Alert alert = new Alert(Alert.AlertType.ERROR);

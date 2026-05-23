@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import java.net.URL?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.sdccd.cisc191.client.ui.controller.QueueViewController"
+      prefWidth="400.0" prefHeight="250.0"
+      spacing="10">
+
+    <padding>
+        <Insets top="10" bottom="10" left="10" right="10"/>
+    </padding>
+
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <ListView fx:id="listView" VBox.vgrow="ALWAYS"/>
+
+    <HBox spacing="5" alignment="BOTTOM_RIGHT">
+        <Button onAction="#closeAction" text="OK" defaultButton="true" minWidth="70"/>
+    </HBox>
+</VBox>
