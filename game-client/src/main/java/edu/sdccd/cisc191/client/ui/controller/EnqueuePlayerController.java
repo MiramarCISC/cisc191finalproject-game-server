@@ -5,6 +5,7 @@ import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
 import edu.sdccd.cisc191.client.ui.util.NumberHelper;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
+import edu.sdccd.cisc191.client.util.DateHelper;
 import edu.sdccd.cisc191.client.util.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,14 +38,18 @@ public class EnqueuePlayerController {
             playerId = NumberHelper.parseLongOrAlert(idField.getText(), "player ID");
         } catch (NumberFormatException e) { return; }
 
-        logger.debug("Requesting Matches for Player...");
+        logger.debug("Requesting Player Enqueueing...");
 
-        HttpRequestExecutor.tryRequest(() -> gameHttpService.fetchMatchesForPlayer(playerId), logger)
+        HttpRequestExecutor.tryRequest(() -> gameHttpService.enqueuePlayer(playerId), logger)
             .onFailure(InvalidPlayerException.class, (e) -> {
-                logger.error("Player does not exist!", e);
+                logger.error("Player does not exist or is already enqueued!", e);
             })
             .onSuccess(response -> {
-                //TODO: Finish this
+                logger.info(
+                    "Successfully assigned player %s/#%d to queue position %d at %s",
+                    response.username(), response.playerId(), response.id(),
+                    DateHelper.formatInstant(response.joinedAt())
+                );
             });
 
         WindowManager.closeWindow(event);
