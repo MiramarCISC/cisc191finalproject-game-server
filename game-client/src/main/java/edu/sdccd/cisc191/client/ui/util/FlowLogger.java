@@ -58,6 +58,7 @@ public class FlowLogger implements Logger {
         this.textFlow.getChildren().clear();
     }
 
+    @Override
     public String getText() {
         return textFlow.getChildren().stream()
             .filter(Text.class::isInstance)

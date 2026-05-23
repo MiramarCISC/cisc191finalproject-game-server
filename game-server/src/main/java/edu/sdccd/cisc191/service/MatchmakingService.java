@@ -1,6 +1,7 @@
 package edu.sdccd.cisc191.service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 
 import edu.sdccd.cisc191.exception.PlayerNotFoundException;
@@ -100,5 +101,17 @@ public class MatchmakingService {
         }
 
         return matchRecordRepository.findByPlayerOneIdOrPlayerTwoIdOrderByIdDesc(playerId, playerId);
+    }
+
+    public String[][] getLeaderboardArray() {
+        return playerAccountRepository.findAll().stream()
+            .sorted(
+                Comparator.comparing(PlayerAccount::getRating).reversed()
+                    .thenComparing(PlayerAccount::getUsername)
+            ).map(account -> {
+                return new String[] {
+                    account.getUsername(), Integer.toString(account.getRating())
+                };
+            }).toArray(String[][]::new);
     }
 }

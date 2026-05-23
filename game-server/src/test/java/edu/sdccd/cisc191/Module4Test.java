@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.service;
+package edu.sdccd.cisc191;
 
 import edu.sdccd.cisc191.model.PlayerAccount;
 import edu.sdccd.cisc191.repository.PlayerAccountRepository;
