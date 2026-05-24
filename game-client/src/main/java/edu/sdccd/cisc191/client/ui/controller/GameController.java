@@ -82,6 +82,16 @@ public class GameController {
     }
 
     @FXML
+    private void requestPlayerFind() {
+        WindowManager.spawnWindow(ViewType.FIND_PLAYER, true);
+    }
+
+    @FXML
+    private void requestTopNPlayers() {
+        WindowManager.spawnWindow(ViewType.TOP_N_REQUEST, true);
+    }
+
+    @FXML
     private void clearLogs() {
         logger.clear();
     }

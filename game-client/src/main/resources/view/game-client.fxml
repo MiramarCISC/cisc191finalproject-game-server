@@ -14,7 +14,7 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="edu.sdccd.cisc191.client.ui.controller.GameController"
-      prefWidth="750.0" prefHeight="360.0"
+      prefWidth="750.0" prefHeight="480.0"
       spacing="10">
 
     <padding>
@@ -39,6 +39,9 @@
             <Button onAction="#requestNewMatch" text="Create Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
             <Button onAction="#requestEndMatch" text="Finish Match" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
             <Button onAction="#requestPlayerMatches" text="Get Past Matches" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+
+            <Button onAction="#requestPlayerFind" text="Find Player by Name" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
+            <Button onAction="#requestTopNPlayers" text="Get Top N Players" maxWidth="Infinity" VBox.vgrow="ALWAYS" maxHeight="Infinity"/>
         </VBox>
 
         <AnchorPane HBox.hgrow="ALWAYS">

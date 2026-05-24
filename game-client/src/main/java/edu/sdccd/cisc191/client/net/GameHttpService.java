@@ -95,4 +95,26 @@ public class GameHttpService {
                 throw new InvalidPlayerException("Server could not fetch matches.");
             }).body(new ParameterizedTypeReference<>() {});
     }
+
+    public PlayerResponse getPlayerByUsername(String username) {
+        return restClient.get()
+            .uri(builder -> builder
+                .path("/players")
+                .queryParam("username", username)
+                .build()
+            ).retrieve()
+            .onStatus(HttpStatusCode::is5xxServerError, (request, response) -> {
+                throw new InvalidPlayerException("Server could not get player by username.");
+            }).body(PlayerResponse.class);
+    }
+
+    public String[][] getTopNPlayersSortedAlpha(int limit) {
+        return restClient.get()
+            .uri(builder -> builder
+                .path("/players/leaderboards")
+                .queryParam("limit", limit)
+                .build()
+            ).retrieve()
+            .body(new ParameterizedTypeReference<>() {});
+    }
 }

@@ -27,4 +27,17 @@ public class NumberHelper {
             throw e;
         }
     }
+
+    public static int parseIntOrAlert(String s, String inputName) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setContentText("The " + inputName + " provided is invalid.");
+            alert.showAndWait();
+
+            throw e;
+        }
+    }
 }

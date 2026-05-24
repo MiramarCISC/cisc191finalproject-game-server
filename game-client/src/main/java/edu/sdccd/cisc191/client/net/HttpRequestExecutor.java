@@ -1,8 +1,8 @@
 package edu.sdccd.cisc191.client.net;
 
 import edu.sdccd.cisc191.util.Logger;
-import org.springframework.web.client.ResourceAccessException;
 
+import java.net.ConnectException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,7 +36,7 @@ public class HttpRequestExecutor<T> {
             } catch (Throwable e) {
                 Throwable caught = e.getCause() != null ? e.getCause() : e;
 
-                if (caught instanceof ResourceAccessException) {
+                if (caught instanceof ConnectException) {
                     logger.error("Could not reach server! Is server up?", e);
                     ResultWrapper<T> wrapper = new ResultWrapper<>(null, caught);
                     wrapper.isHandled = true;

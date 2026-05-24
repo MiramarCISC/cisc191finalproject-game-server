@@ -35,6 +35,20 @@ public class MatchmakingController {
         return toPlayerResponse(matchmakingService.registerPlayer(username, rating));
     }
 
+    @GetMapping("/players")
+    public PlayerResponse getPlayerByUsername(
+            @RequestParam String username
+    ) {
+        return toPlayerResponse(matchmakingService.recursiveGetPlayerByUsername(username));
+    }
+
+    @GetMapping("/players/leaderboards")
+    public String[][] getTopNPlayers(
+            @RequestParam int limit
+    ) {
+        return matchmakingService.getTopNPlayersSortedAlpha(matchmakingService.getLeaderboardArray(), limit);
+    }
+
     @PostMapping("/queue/{playerId}")
     public QueueEntryResponse enqueuePlayer(@PathVariable Long playerId) {
         return toQueueEntryResponse(matchmakingService.enqueuePlayer(playerId));

@@ -135,7 +135,7 @@ public class MatchmakingService {
     }
 
     public String[][] getTopNPlayersSortedAlpha(String[][] leaderboardArray, int n) {
-        String[][] workingArray = Arrays.copyOf(leaderboardArray, n);
+        String[][] workingArray = Arrays.copyOf(leaderboardArray, Math.min(leaderboardArray.length, n));
 
         return Arrays.stream(workingArray)
             .sorted(Comparator.comparing(e -> e[0]))

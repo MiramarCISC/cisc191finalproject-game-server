@@ -50,6 +50,24 @@ public final class ViewType<T> {
         true
     );
 
+    public static final ViewType<FindPlayerController> FIND_PLAYER = new ViewType<>(
+        "/view/find-player.fxml",
+        "Find Player by Username", 250, 100,
+        false
+    );
+
+    public static final ViewType<TopNRequestController> TOP_N_REQUEST = new ViewType<>(
+        "/view/top-n-request.fxml",
+        "Get Top N Players", 250, 100,
+        false
+    );
+
+    public static final ViewType<TopNViewController> TOP_N_VIEW = new ViewType<>(
+        "/view/top-n-view.fxml",
+        "Top N Players", 400, 250,
+        true
+    );
+
     private final String fxmlPath;
     private final String viewTitle;
     private final double width;

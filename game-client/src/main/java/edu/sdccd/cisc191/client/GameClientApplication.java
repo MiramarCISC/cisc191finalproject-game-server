@@ -29,14 +29,14 @@ public class GameClientApplication extends Application {
         );
         loader.setControllerFactory(springContext::getBean);
 
-        Scene scene = new Scene(loader.load(), 700, 360);
+        Scene scene = new Scene(loader.load(), 700, 480);
 
         stage.setTitle("JavaFX REST Game Dashboard");
         stage.setScene(scene);
         stage.show();
 
         stage.setMinWidth(500);
-        stage.setMinHeight(300);
+        stage.setMinHeight(350);
     }
 
     @Override
