@@ -81,7 +81,7 @@ Prior to running the client's JUnit tests, please ensure that you have followed 
 Afterward, you can run the client's JUnit tests using Maven:
 
 ```bash
-cd game-client &&  mvn test
+cd game-client && mvn test
 ```
 
 ### Server
@@ -101,7 +101,7 @@ cd game-server && mvn test
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | Module 1: Arrays + OO Refresh                          | Allows the server to send the top N best players to the client by truncating the leaderboard and sorting.                                           | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [119-125]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [34-46]    |
 | Module 2: OO Design + Functional Interfaces            | Provides an easy to use, robust fluent API that reduces boilerplate and ensures compile-time safety.                                                | `game-client/src/main/java/edu/sdccd/cisc191/client/net/HttpRequestExecutor.java`, lines [12-80]    | `game-client/src/test/java/edu/sdccd/cisc191/client/Module2and7Test.java`, lines [25-60] |
-| Module 3: Inheritance + Polymorphism                   | TBD                                                                                                                                                 |                                                                                                     |
+| Module 3: Inheritance + Polymorphism                   | TBD                                                                                                                                                 |                                                                                                     |                                                                                          |
 | Module 4: Exceptions + File I/O + Database Persistence | Allows the server to persist information about players during runtime using Spring JPA and H2.                                                      | `game-server/src/main/java/edu/sdccd/cisc191/repository/PlayerAccountRepository.java`, lines [9-12] | `game-server/src/test/java/edu/sdccd/cisc191/Module4Test.java`, lines [18-34]            |
 | Module 5: Recursion + Algorithms                       | Allows the server to efficiently find players by username through the use of a binary search algorithm.                                             | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [127-148]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [49-52]    |
 | Module 6: Collections + Generics + Advanced Streams    | Allows the server to compile a leaderboard of players sorted descending by ratings robustly and efficiently using Java's Stream API and collectons. | `game-server/src/main/java/edu/sdccd/cisc191/service/MatchmakingService.java`, lines [106-116]      | `game-server/src/test/java/edu/sdccd/cisc191/Module1And5And6Test.java`, lines [54-79]    |
@@ -111,7 +111,7 @@ cd game-server && mvn test
 ## Reflections
 
 ### What I am most proud of:
-> TBD
+> My proudest achievement in this codebase is fine-tuning the API used for `game-client`'s UI and networking code. One of my top priorities while working on the project was ensuring that the API for managing JavaFX's lifecycles and network requests was as robust and painless to use as possible. Their current implementation allows for greater code reusability, readability, as well as very quick, robust implementations down the line that require minimal, if any architectural changes. 
 
 ### What I would improve with more time:
-> TBD
+> If I had more time, I would definitely have worked more on the server infrastructure in order to make matches work in real-time with gRPC. I have previously attempted to do this in the now-archived `unstable/stream-system` branch, but unfortunately much of that code was unstable, prone to memory leaks, and difficult to debug, leading me to switch to a REST backend. If I had time to revise the server code, I would attempt to make gRPC concurrency and active matches a top priority.
