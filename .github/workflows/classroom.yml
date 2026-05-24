@@ -32,4 +32,4 @@ jobs:
       - name: Test Spring Boot web client module
         # Module 3 Test Excluded; GitHub cannot run UI.
         run: |
-          mvn -B -pl game-client test '-Dtest=!Module3Test'
+          mvn -B -pl game-client test '-Dsurefire.excludes=**/Module3Test.java'
