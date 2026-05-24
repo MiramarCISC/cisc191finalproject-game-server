@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.model;
+package edu.sdccd.cisc191.server.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

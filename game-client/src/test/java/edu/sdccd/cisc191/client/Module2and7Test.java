@@ -2,7 +2,7 @@ package edu.sdccd.cisc191.client;
 
 import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
-import edu.sdccd.cisc191.client.util.Logger;
+import edu.sdccd.cisc191.util.Logger;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;

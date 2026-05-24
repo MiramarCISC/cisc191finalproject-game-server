@@ -1,7 +1,7 @@
-package edu.sdccd.cisc191;
+package edu.sdccd.cisc191.server;
 
-import edu.sdccd.cisc191.model.PlayerAccount;
-import edu.sdccd.cisc191.repository.PlayerAccountRepository;
+import edu.sdccd.cisc191.server.model.PlayerAccount;
+import edu.sdccd.cisc191.server.repository.PlayerAccountRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

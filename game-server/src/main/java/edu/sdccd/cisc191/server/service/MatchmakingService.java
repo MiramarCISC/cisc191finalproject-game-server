@@ -1,23 +1,26 @@
-package edu.sdccd.cisc191.service;
+package edu.sdccd.cisc191.server.service;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import edu.sdccd.cisc191.exception.PlayerNotFoundException;
+import edu.sdccd.cisc191.server.exception.PlayerNotFoundException;
+import edu.sdccd.cisc191.util.ConsoleLogger;
+import edu.sdccd.cisc191.util.Logger;
 import org.springframework.stereotype.Service;
 
-import edu.sdccd.cisc191.model.MatchRecord;
-import edu.sdccd.cisc191.model.MatchStatus;
-import edu.sdccd.cisc191.model.PlayerAccount;
-import edu.sdccd.cisc191.model.QueueEntry;
-import edu.sdccd.cisc191.repository.MatchRecordRepository;
-import edu.sdccd.cisc191.repository.PlayerAccountRepository;
-import edu.sdccd.cisc191.repository.QueueEntryRepository;
+import edu.sdccd.cisc191.server.model.MatchRecord;
+import edu.sdccd.cisc191.server.model.MatchStatus;
+import edu.sdccd.cisc191.server.model.PlayerAccount;
+import edu.sdccd.cisc191.server.model.QueueEntry;
+import edu.sdccd.cisc191.server.repository.MatchRecordRepository;
+import edu.sdccd.cisc191.server.repository.PlayerAccountRepository;
+import edu.sdccd.cisc191.server.repository.QueueEntryRepository;
 
 @Service
 public class MatchmakingService {
+    private final Logger logger = new ConsoleLogger();
 
     private final PlayerAccountRepository playerAccountRepository;
     private final QueueEntryRepository queueEntryRepository;
@@ -47,6 +50,8 @@ public class MatchmakingService {
         PlayerAccount player = new PlayerAccount(username, rating);
         playerAccountRepository.save(player);
 
+        logger.info("Player with name %s registered successfully", username);
+
         return player;
     }
 
@@ -55,6 +60,9 @@ public class MatchmakingService {
             .orElseThrow(PlayerNotFoundException::new);
 
         QueueEntry entry = new QueueEntry(player, Instant.now());
+
+        logger.info("Enqueuing player with id %d to queue", playerId);
+
         return queueEntryRepository.save(entry);
     }
 
@@ -70,6 +78,9 @@ public class MatchmakingService {
             .orElseThrow(PlayerNotFoundException::new);
 
         MatchRecord record = new MatchRecord(playerOne, playerTwo, arenaName, MatchStatus.OPEN);
+
+        logger.info("Creating new match with ids %d %d and arena %s", playerOneId, playerTwoId, arenaName);
+
         return matchRecordRepository.save(record);
     }
 
@@ -87,11 +98,14 @@ public class MatchmakingService {
         match.setWinner(playerWinner);
         match.setStatus(MatchStatus.COMPLETED);
 
+        logger.info("Match with id %d being finished with winner %d", matchId, winnerId);
+
         // Explicit saving isn't typically necessary, as JPA handles it automatically.
         return matchRecordRepository.save(match);
     }
 
     public List<QueueEntry> getQueue() {
+        logger.info("Queue requested");
         return queueEntryRepository.findAllByOrderByJoinedAtAsc();
     }
 
@@ -101,10 +115,14 @@ public class MatchmakingService {
             throw new PlayerNotFoundException();
         }
 
+        logger.info("Getting recent matches for player with id %d", playerId);
+
         return matchRecordRepository.findByPlayerOneIdOrPlayerTwoIdOrderByIdDesc(playerId, playerId);
     }
 
     public String[][] getLeaderboardArray() {
+        logger.info("Fetching leaderboard");
+
         return playerAccountRepository.findAll().stream()
             .sorted(
                 Comparator.comparing(PlayerAccount::getRating).reversed()

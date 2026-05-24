@@ -5,6 +5,9 @@ import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.ui.util.FlowLogger;
 import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
+import edu.sdccd.cisc191.util.CompositeLogger;
+import edu.sdccd.cisc191.util.ConsoleLogger;
+import edu.sdccd.cisc191.util.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -21,7 +24,7 @@ public class GameController {
     private final GameHttpService gameHttpService;
 
     @FXML private TextFlow logFlow;
-    private FlowLogger logger;
+    private CompositeLogger logger;
 
     public GameController(GameHttpService gameHttpService) {
         this.gameHttpService = gameHttpService;
@@ -30,7 +33,11 @@ public class GameController {
     @FXML
     private void initialize() {
         assert(logFlow != null);
-        logger = new FlowLogger(logFlow);
+
+        logger = new CompositeLogger(
+            new FlowLogger(logFlow),
+            new ConsoleLogger()
+        );
     }
 
     @FXML
@@ -107,7 +114,7 @@ public class GameController {
         }
     }
 
-    public FlowLogger getLogger() {
+    public Logger getLogger() {
         return logger;
     }
 }

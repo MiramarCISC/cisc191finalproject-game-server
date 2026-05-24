@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.dto;
+package edu.sdccd.cisc191.server.dto;
 
 public record PlayerResponse(Long id, String username, int rating) {
 }

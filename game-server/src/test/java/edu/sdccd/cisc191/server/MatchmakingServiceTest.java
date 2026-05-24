@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191;
+package edu.sdccd.cisc191.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -7,16 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import edu.sdccd.cisc191.service.MatchmakingService;
+import edu.sdccd.cisc191.server.exception.PlayerNotFoundException;
+import edu.sdccd.cisc191.server.service.MatchmakingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.sdccd.cisc191.model.MatchRecord;
-import edu.sdccd.cisc191.model.MatchStatus;
-import edu.sdccd.cisc191.model.PlayerAccount;
-import edu.sdccd.cisc191.model.QueueEntry;
+import edu.sdccd.cisc191.server.model.MatchRecord;
+import edu.sdccd.cisc191.server.model.MatchStatus;
+import edu.sdccd.cisc191.server.model.PlayerAccount;
+import edu.sdccd.cisc191.server.model.QueueEntry;
 
 @SpringBootTest
 @Transactional
@@ -79,7 +80,7 @@ class MatchmakingServiceTest {
         PlayerAccount outsider = matchmakingService.registerPlayer("intruder", 1000);
         MatchRecord match = matchmakingService.createMatch(p1.getId(), p2.getId(), "Factory");
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(PlayerNotFoundException.class,
                 () -> matchmakingService.finishMatch(match.getId(), outsider.getId()));
     }
 

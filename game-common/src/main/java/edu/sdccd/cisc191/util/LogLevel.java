@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.client.util;
+package edu.sdccd.cisc191.util;
 
 public enum LogLevel {
     INFO("[INFO] "),

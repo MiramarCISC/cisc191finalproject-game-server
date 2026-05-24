@@ -6,7 +6,7 @@ import edu.sdccd.cisc191.client.net.exception.InvalidPlayerException;
 import edu.sdccd.cisc191.client.ui.util.NumberHelper;
 import edu.sdccd.cisc191.client.ui.util.ViewType;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
-import edu.sdccd.cisc191.client.util.Logger;
+import edu.sdccd.cisc191.util.Logger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

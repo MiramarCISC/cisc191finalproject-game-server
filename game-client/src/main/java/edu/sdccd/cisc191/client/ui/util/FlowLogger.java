@@ -1,16 +1,14 @@
 package edu.sdccd.cisc191.client.ui.util;
 
-import edu.sdccd.cisc191.client.util.Logger;
-import edu.sdccd.cisc191.client.util.LogLevel;
+import edu.sdccd.cisc191.util.Logger;
+import edu.sdccd.cisc191.util.LogLevel;
 import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.stream.Collectors;
 
-public class FlowLogger implements Logger {
+public class FlowLogger extends Logger {
     private final TextFlow textFlow;
     private final int maxLines;
 
@@ -24,36 +22,6 @@ public class FlowLogger implements Logger {
     }
 
     @Override
-    public void info(String message, Object... args) {
-
-        this.append(message, LogLevel.INFO, args);
-    }
-
-    @Override
-    public void debug(String message, Object... args) {
-        this.append(message, LogLevel.DEBUG, args);
-    }
-
-    @Override
-    public void warn(String message, Object... args) {
-        this.append(message, LogLevel.WARN, args);
-    }
-
-    @Override
-    public void error(String message, Object... args) {
-        this.append(message, LogLevel.ERROR, args);
-    }
-
-    @Override
-    public void error(String message, Throwable e) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-
-        e.printStackTrace(pw);
-
-        this.append(message + '\n' + sw, LogLevel.ERROR);
-    }
-
     public void clear() {
         this.textFlow.getChildren().clear();
     }
@@ -70,7 +38,7 @@ public class FlowLogger implements Logger {
             }).collect(Collectors.joining());
     }
 
-    private void append(String message, LogLevel level, Object... args) {
+    protected void append(String message, LogLevel level, Object... args) {
         Platform.runLater(() -> {
             String formattedMessage = String.format(message, args);
             String[] lines = formattedMessage.split("\n");

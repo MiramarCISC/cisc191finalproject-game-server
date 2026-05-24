@@ -1,12 +1,9 @@
-package edu.sdccd.cisc191.repository;
-
-import java.util.Optional;
+package edu.sdccd.cisc191.server.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import edu.sdccd.cisc191.model.PlayerAccount;
+import edu.sdccd.cisc191.server.model.PlayerAccount;
 
 public interface PlayerAccountRepository extends JpaRepository<PlayerAccount, Long> {
-    Optional<PlayerAccount> findByUsername(String username);
     boolean existsByUsername(String username);
 }

@@ -1,6 +1,6 @@
 package edu.sdccd.cisc191.client.net;
 
-import edu.sdccd.cisc191.client.util.Logger;
+import edu.sdccd.cisc191.util.Logger;
 import org.springframework.web.client.ResourceAccessException;
 
 import java.util.concurrent.CompletableFuture;

@@ -1,4 +1,4 @@
-package edu.sdccd.cisc191.controller;
+package edu.sdccd.cisc191.server.controller;
 
 import java.util.List;
 
@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import edu.sdccd.cisc191.dto.MatchResponse;
-import edu.sdccd.cisc191.dto.PlayerResponse;
-import edu.sdccd.cisc191.dto.QueueEntryResponse;
-import edu.sdccd.cisc191.model.MatchRecord;
-import edu.sdccd.cisc191.model.PlayerAccount;
-import edu.sdccd.cisc191.model.QueueEntry;
-import edu.sdccd.cisc191.service.MatchmakingService;
+import edu.sdccd.cisc191.server.dto.MatchResponse;
+import edu.sdccd.cisc191.server.dto.PlayerResponse;
+import edu.sdccd.cisc191.server.dto.QueueEntryResponse;
+import edu.sdccd.cisc191.server.model.MatchRecord;
+import edu.sdccd.cisc191.server.model.PlayerAccount;
+import edu.sdccd.cisc191.server.model.QueueEntry;
+import edu.sdccd.cisc191.server.service.MatchmakingService;
 
 @RestController
 @RequestMapping("/api")

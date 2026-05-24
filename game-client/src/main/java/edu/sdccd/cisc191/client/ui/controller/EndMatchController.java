@@ -5,7 +5,7 @@ import edu.sdccd.cisc191.client.net.HttpRequestExecutor;
 import edu.sdccd.cisc191.client.net.exception.InvalidMatchException;
 import edu.sdccd.cisc191.client.ui.util.NumberHelper;
 import edu.sdccd.cisc191.client.ui.util.WindowManager;
-import edu.sdccd.cisc191.client.util.Logger;
+import edu.sdccd.cisc191.util.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
